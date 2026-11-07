@@ -93,3 +93,62 @@ def test_gemini_service_tier_case_normalization():
     gemini_service._validate_triage_json(sample_data)
     assert sample_data["tier"] == "RED"
 
+@pytest.mark.anyio
+async def test_triage_service_sanitizes_summaries_and_guidance():
+    from app.services.triage_service import triage_service
+    from app.services.gemini_service import gemini_service
+    from app.schemas import SymptomTriageRequest
+    from unittest.mock import AsyncMock, patch
+
+    # Mock gemini to return an unsafe response with prescriptions in summaries and guidance
+    unsafe_mock_response = {
+        "tier": "YELLOW",
+        "tier_label_ha": "Gani Likita",
+        "tier_label_en": "Clinical Visit",
+        "is_emergency": False,
+        "summary_ha": "Mara lafiya ya sha amoxicillin 250mg a gida.",
+        "summary_en": "Patient should take augmentin and coartem at home.",
+        "primary_actions_ha": ["Sha metronidazole sau biyu a rana"],
+        "primary_actions_en": ["Buy ciprofloxacin from pharmacy"],
+        "clinical_disclaimer_ha": "Shawarar Lafiya taimako ne kawai.",
+        "clinical_disclaimer_en": "Triage support only.",
+        "nearest_care_guidance_ha": "Je PHC don karbar cipro.",
+        "nearest_care_guidance_en": "Visit clinic to collect ampicillin."
+    }
+
+    req = SymptomTriageRequest(
+        symptoms_text="Ina da zazzabi da tari",
+        language="ha"
+    )
+
+    old_avail = gemini_service._available
+    old_model = gemini_service._model
+    try:
+        gemini_service._available = True
+        gemini_service._model = "mock_model"
+        with patch.object(gemini_service, "run_triage", new_callable=AsyncMock) as mock_gemini:
+            mock_gemini.return_value = unsafe_mock_response
+            res = await triage_service.triage_symptoms(req)
+
+            # Assert no prohibited drugs remained in summaries or guidance
+            assert "amoxicillin" not in res.summary_ha.lower()
+            assert "augmentin" not in res.summary_en.lower()
+            assert "coartem" not in res.summary_en.lower()
+            assert "metronidazole" not in res.primary_actions_ha[0].lower()
+            assert "ciprofloxacin" not in res.primary_actions_en[0].lower()
+            assert "cipro" not in res.nearest_care_guidance_ha.lower()
+            assert "ampicillin" not in res.nearest_care_guidance_en.lower()
+
+            # Assert all detected drugs were recorded in blocked list
+            blocked = set(res.blocked_prescriptions_found)
+            assert "amoxicillin" in blocked
+            assert "augmentin" in blocked
+            assert "coartem" in blocked
+            assert "metronidazole" in blocked
+            assert "ciprofloxacin" in blocked
+            assert "ampicillin" in blocked
+    finally:
+        gemini_service._available = old_avail
+        gemini_service._model = old_model
+
+

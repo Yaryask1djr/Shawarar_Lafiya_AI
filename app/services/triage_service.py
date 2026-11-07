@@ -107,32 +107,24 @@ class TriageService:
         # -------------------------------------------------------------
         # STEP 3: POST-EXECUTION PRESCRIPTION GUARDRAIL
         # -------------------------------------------------------------
-        clean_sum_ha, blocked_ha = guardrail_service.sanitize_and_check_prescriptions(
-            triage_dict.get("summary_ha", "")
-        )
-        clean_sum_en, blocked_en = guardrail_service.sanitize_and_check_prescriptions(
-            triage_dict.get("summary_en", "")
-        )
+        all_blocked = set()
 
-        triage_dict["summary_ha"] = clean_sum_ha
-        triage_dict["summary_en"] = clean_sum_en
+        # Sanitize narrative summaries and care guidance
+        for field in ("summary_ha", "summary_en", "nearest_care_guidance_ha", "nearest_care_guidance_en"):
+            if field in triage_dict and isinstance(triage_dict[field], str):
+                cleaned_text, blocked = guardrail_service.sanitize_and_check_prescriptions(triage_dict[field])
+                triage_dict[field] = cleaned_text
+                all_blocked.update(blocked)
 
-        all_blocked = set(blocked_ha + blocked_en)
+        # Sanitize primary actions lists
+        for list_field in ("primary_actions_ha", "primary_actions_en"):
+            cleaned_actions = []
+            for act in triage_dict.get(list_field, []):
+                cleaned_act, blocked = guardrail_service.sanitize_and_check_prescriptions(act)
+                cleaned_actions.append(cleaned_act)
+                all_blocked.update(blocked)
+            triage_dict[list_field] = cleaned_actions
 
-        cleaned_actions_ha = []
-        for act in triage_dict.get("primary_actions_ha", []):
-            cleaned_act, blocked = guardrail_service.sanitize_and_check_prescriptions(act)
-            cleaned_actions_ha.append(cleaned_act)
-            all_blocked.update(blocked)
-
-        cleaned_actions_en = []
-        for act in triage_dict.get("primary_actions_en", []):
-            cleaned_act, blocked = guardrail_service.sanitize_and_check_prescriptions(act)
-            cleaned_actions_en.append(cleaned_act)
-            all_blocked.update(blocked)
-
-        triage_dict["primary_actions_ha"] = cleaned_actions_ha
-        triage_dict["primary_actions_en"] = cleaned_actions_en
         triage_dict["blocked_prescriptions_found"] = sorted(list(all_blocked))
 
         return TriageResponse(**triage_dict)
