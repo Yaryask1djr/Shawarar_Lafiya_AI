@@ -13,11 +13,12 @@ class TTSService:
             "en": "en-NG-Standard-A"   # Nigerian English voice
         }
 
-    def generate_voice_response(self, text: str, language: str = "ha") -> Dict[str, Any]:
+    def generate_voice_response(self, text: str = "", language: str = "ha") -> Dict[str, Any]:
         """
         Synthesizes spoken audio for triage feedback.
         Returns metadata and simulated audio stream reference.
         """
+        text = text or ""
         voice = self.supported_voices.get(language, self.supported_voices["ha"])
         text_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()[:8]
         return {

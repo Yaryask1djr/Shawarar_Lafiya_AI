@@ -114,6 +114,16 @@ def test_voice_stream_endpoint():
     assert response.headers["content-type"] == "audio/wav"
     assert len(response.content) > 0
 
+def test_voice_synthesize_endpoint():
+    response = client.post("/api/v1/voice/synthesize", data={"text": "Sannu da zuwa cibiyar lafiya", "language": "ha"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ready"
+    assert "audio_url" in data
+    assert "text_hash=" in data["audio_url"]
+    assert data["voice_id"] == "ha-NG-Standard-A"
+    assert data["character_count"] == len("Sannu da zuwa cibiyar lafiya")
+
 def test_mrdt_empty_image_rejected():
     files = {"image_file": ("test.jpg", io.BytesIO(b""), "image/jpeg")}
     response = client.post("/api/v1/mrdt/interpret", files=files, data={"language": "ha"})

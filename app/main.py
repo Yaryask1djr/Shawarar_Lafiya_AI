@@ -190,6 +190,14 @@ def check_redflags_endpoint(text: str = Form(...), language: str = Form("ha")):
     """
     return guardrail_service.scan_for_red_flags(text, language=language)
 
+@app.post(f"{settings.API_PREFIX}/voice/synthesize")
+def synthesize_voice_endpoint(text: str = Form(...), language: str = Form("ha")):
+    """
+    Synthesizes spoken audio for triage feedback using TTSService.
+    Returns audio URL and voice metadata.
+    """
+    return tts_service.generate_voice_response(text=text, language=language)
+
 @app.get(f"{settings.API_PREFIX}/voice/stream")
 def stream_voice_audio(text_hash: str = Query(...), lang: str = Query("ha")):
     """
