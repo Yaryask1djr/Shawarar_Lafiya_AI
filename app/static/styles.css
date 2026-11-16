@@ -1404,6 +1404,25 @@ body {
   gap: 10px;
 }
 
+.referral-offline-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: var(--r-md);
+  margin-bottom: 8px;
+  font-size: 0.82rem;
+  color: var(--amber);
+  font-weight: 600;
+  animation: toast-slide-in 0.25s ease-out;
+}
+
+.referral-offline-banner svg {
+  flex-shrink: 0;
+}
+
 .facility-card {
   display: flex;
   align-items: center;

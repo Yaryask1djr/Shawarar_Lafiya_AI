@@ -1013,14 +1013,63 @@ function searchReferralByState() {
   fetchAndRenderReferral(coords.lat, coords.lon, state);
 }
 
+// ---------------------------------------------------------------------------
+// PHC Offline Cache — localStorage, 7-day TTL
+// ---------------------------------------------------------------------------
+const PHC_CACHE_KEY  = 'lafiya_phc_cache';
+const PHC_CACHE_TTL  = 7 * 24 * 60 * 60 * 1000; // 7 days in ms
+
+/** Persist a successful referral API response keyed by stateFilter. */
+function cachePHCData(stateFilter, data) {
+  try {
+    const raw = JSON.parse(localStorage.getItem(PHC_CACHE_KEY) || '{}');
+    raw[stateFilter || '__all__'] = { ts: Date.now(), data };
+    localStorage.setItem(PHC_CACHE_KEY, JSON.stringify(raw));
+  } catch (_) {
+    // Storage may be full or unavailable — silently skip caching.
+  }
+}
+
+/** Return cached entry if present and within TTL, otherwise null. */
+function getCachedPHCData(stateFilter) {
+  try {
+    const raw = JSON.parse(localStorage.getItem(PHC_CACHE_KEY) || '{}');
+    const entry = raw[stateFilter || '__all__'];
+    if (entry && (Date.now() - entry.ts) < PHC_CACHE_TTL) return entry.data;
+  } catch (_) { /* ignore parse errors */ }
+  return null;
+}
+
+/** Clear all PHC cache entries (e.g., on manual refresh). */
+function bustPHCCache() {
+  try { localStorage.removeItem(PHC_CACHE_KEY); } catch (_) {}
+}
+
 async function fetchAndRenderReferral(lat, lon, stateFilter) {
   document.getElementById('referral-loading').classList.remove('hidden');
   const container = document.getElementById('referral-results-list');
   container.innerHTML = '';
 
+  const isHa = STATE.language === 'ha';
+
+  // Fast offline fallback: if browser explicitly reports offline, load cache immediately without network delay
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    const cached = getCachedPHCData(stateFilter);
+    if (cached) {
+      document.getElementById('referral-loading').classList.add('hidden');
+      STATE.referralLoaded = true;
+      renderReferralList(cached, /* isOffline */ true);
+      showToast(
+        isHa ? "Bayanai na Cache" : "Offline Cache Active",
+        isHa ? "Ana nuna bayanan da aka adana kafin. Intanet ba ta aiki." : "Showing cached facility data. Network unavailable.",
+        'warning'
+      );
+      return;
+    }
+  }
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s referral timeout
-  const isHa = STATE.language === 'ha';
 
   try {
     const res = await fetch('/api/v1/referral/nearest', {
@@ -1040,9 +1089,31 @@ async function fetchAndRenderReferral(lat, lon, stateFilter) {
     if (!res.ok) throw new Error('Referral API error');
     const data = await res.json();
     STATE.referralLoaded = true;
+
+    // Cache successful response for offline use.
+    cachePHCData(stateFilter, data);
+
     renderReferralList(data);
   } catch (err) {
     clearTimeout(timeoutId);
+
+    // ---- Offline fallback: serve from localStorage cache ----
+    const cached = getCachedPHCData(stateFilter);
+    if (cached) {
+      STATE.referralLoaded = true;
+      renderReferralList(cached, /* isOffline */ true);
+
+      const offlineMsg = isHa
+        ? "Ana nuna bayanan da aka adana kafin. Intanet ba ta aiki."
+        : "Showing cached facility data. Network unavailable.";
+      showToast(
+        isHa ? "Bayanai na Cache" : "Offline Cache Active",
+        offlineMsg,
+        'warning'
+      );
+      return;
+    }
+    // ---- No cache available — show error UI ----
     const isTimeout = err.name === 'AbortError';
     const errText = isTimeout
       ? (isHa ? "Lokacin neman cibiyar PHC ya wuce. Sake gwadawa." : "Health facility search timed out. Check network or retry.")
@@ -1065,7 +1136,7 @@ async function fetchAndRenderReferral(lat, lon, stateFilter) {
   }
 }
 
-function renderReferralList(data) {
+function renderReferralList(data, isOffline = false) {
   const container = document.getElementById('referral-results-list');
   const isHa = STATE.language === 'ha';
 
@@ -1074,7 +1145,22 @@ function renderReferralList(data) {
     return;
   }
 
-  container.innerHTML = data.facilities.map(f => `
+  const offlineNotice = isOffline ? `
+    <div class="referral-offline-banner">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2">
+        <line x1="1" y1="1" x2="23" y2="23"></line>
+        <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+        <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+        <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+        <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+        <line x1="12" y1="20" x2="12.01" y2="20"></line>
+      </svg>
+      <span>${isHa ? "Yanayin Mara Intanet: Ana nuna cibiyoyin da aka adana a waya (Offline Cache)." : "Offline Mode: Showing cached health facilities stored on device."}</span>
+    </div>
+  ` : '';
+
+  const cardsHtml = data.facilities.map(f => `
     <div class="facility-card">
       <div class="facility-left">
         <span class="facility-distance-badge">${f.distance_km} km</span>
@@ -1095,6 +1181,8 @@ function renderReferralList(data) {
       </div>
     </div>
   `).join('');
+
+  container.innerHTML = offlineNotice + cardsHtml;
 }
 
 // ---------------------------------------------------------------------------
