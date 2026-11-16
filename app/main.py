@@ -129,13 +129,35 @@ async def triage_audio_endpoint(
     Handles audio note upload (IVR/WhatsApp voice memo), transcribes using ASR,
     and executes clinical symptom triage.
     """
-    # Secure unique temporary file path preventing directory traversal
-    safe_filename = os.path.basename(audio_file.filename or "temp_audio.wav")
-    temp_filename = f"{uuid.uuid4().hex}_{safe_filename}"
-    temp_path = os.path.join(settings.AUDIO_UPLOAD_DIR, temp_filename)
+    # Path Traversal & Payload Hardening:
+    ALLOWED_AUDIO_EXTENSIONS = {".wav", ".mp3", ".ogg", ".m4a", ".aac", ".flac", ".webm"}
+    MAX_AUDIO_SIZE_BYTES = 25 * 1024 * 1024  # 25MB limit
+
+    # Extract clean extension or default safely to .wav
+    ext = os.path.splitext(audio_file.filename or "")[1].lower()
+    if ext not in ALLOWED_AUDIO_EXTENSIONS:
+        ext = ".wav"
+
+    # Fully synthesized randomized filename completely isolated from client input
+    temp_filename = f"audio_{uuid.uuid4().hex}{ext}"
+    temp_path = os.path.abspath(os.path.join(settings.AUDIO_UPLOAD_DIR, temp_filename))
+
+    # Canonical prefix check ensuring absolute containment within upload dir
+    upload_dir_abs = os.path.abspath(settings.AUDIO_UPLOAD_DIR)
+    if not temp_path.startswith(upload_dir_abs):
+        raise HTTPException(status_code=400, detail="Invalid audio file path.")
+
     try:
+        buffer_size = 0
         with open(temp_path, "wb") as buffer:
-            shutil.copyfileobj(audio_file.file, buffer)
+            while chunk := await audio_file.read(1024 * 64):
+                buffer_size += len(chunk)
+                if buffer_size > MAX_AUDIO_SIZE_BYTES:
+                    raise HTTPException(status_code=413, detail="Audio file exceeds maximum permitted size of 25MB.")
+                buffer.write(chunk)
+
+        if buffer_size == 0:
+            raise HTTPException(status_code=400, detail="Uploaded audio file is empty.")
 
         transcription, detected_lang, duration = await asr_service.transcribe_audio_file(
             file_path=temp_path,

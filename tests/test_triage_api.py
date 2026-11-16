@@ -143,3 +143,26 @@ def test_audio_empty_transcription_rejected():
     # Normal response or handled 400
     assert response.status_code in [200, 400]
 
+def test_audio_path_traversal_sanitized():
+    # Attempt directory traversal in filename
+    malicious_filename = "../../../../../etc/passwd"
+    files = {"audio_file": (malicious_filename, io.BytesIO(b"RIFFValidAudioDataBytesForTesting"), "audio/wav")}
+    response = client.post("/api/v1/triage/audio", files=files, data={"language": "ha"})
+    # Should process safely without throwing unhandled path error or writing to arbitrary paths
+    assert response.status_code == 200
+    assert response.json()["success"] is True
+
+def test_audio_empty_file_rejected():
+    files = {"audio_file": ("empty.wav", io.BytesIO(b""), "audio/wav")}
+    response = client.post("/api/v1/triage/audio", files=files, data={"language": "ha"})
+    assert response.status_code == 400
+    assert "empty" in response.json()["detail"].lower()
+
+def test_audio_oversized_file_rejected():
+    # 25MB + 10 bytes
+    big_bytes = b"0" * (25 * 1024 * 1024 + 10)
+    files = {"audio_file": ("huge.wav", io.BytesIO(big_bytes), "audio/wav")}
+    response = client.post("/api/v1/triage/audio", files=files, data={"language": "ha"})
+    assert response.status_code == 413
+
+
