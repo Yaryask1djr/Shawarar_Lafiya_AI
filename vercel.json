@@ -1,25 +1,38 @@
 {
-  "version": 2,
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/index.py"
+      "src": "api/index.py",
+      "use": "@vercel/python"
     },
     {
-      "source": "/health",
-      "destination": "/api/index.py"
+      "src": "public/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/health",
+      "dest": "api/index.py"
     },
     {
-      "source": "/webhook/(.*)",
-      "destination": "/api/index.py"
+      "src": "/api/(.*)",
+      "dest": "api/index.py"
     },
     {
-      "source": "/ui",
-      "destination": "/index.html"
+      "src": "/webhook/(.*)",
+      "dest": "api/index.py"
     },
     {
-      "source": "/app",
-      "destination": "/index.html"
+      "src": "/static/(.*)",
+      "dest": "/public/static/$1"
+    },
+    {
+      "src": "/(ui|app)",
+      "dest": "/public/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/public/$1"
     }
   ]
 }
