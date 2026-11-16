@@ -141,98 +141,202 @@ const I18N = {
 };
 
 // ---------------------------------------------------------------------------
-// Clinical Scenario Presets — Extended
+// Clinical Scenario Presets — Comprehensive (21 WHO IMCI Conditions)
 // ---------------------------------------------------------------------------
 const SCENARIOS = {
+  // RED TIER: Immediate Danger Signs
   farfadiya: {
     tier: 'red',
-    ha: "Yaro na yana karkarwa da farfadiya, ya daina shan nono.",
+    ha: "Yaro na yana karkarwa da farfadiya, ya daina shan nono kuma ya dade yana zazzabi.",
     en: "My child is convulsing and shaking uncontrollably, and has completely stopped breastfeeding.",
     label_ha: "Farfadiya / Convulsions",
-    label_en: "Farfadiya / Convulsions",
-    desc_ha: "Yaro yana karkarwa, ya daina nono",
-    desc_en: "Child convulsing, stopped breastfeeding"
+    label_en: "Convulsions & Seizures",
+    desc_ha: "Karkarwa, ya daina shan nono — Alamar Hadari",
+    desc_en: "Convulsing, stopped feeding — Danger Sign"
   },
-  zazzabi: {
-    tier: 'amber',
-    ha: "Yaro na yana da zazzabi da zafin jiki tun kwana biyu, amma yana cin abinci.",
-    en: "My child has had a fever for two days, but is active and eating normally.",
-    label_ha: "Zazzabi / Fever (Kwana 2)",
-    label_en: "Zazzabi / Fever (2 Days)",
-    desc_ha: "Zazzabi kwana 2, yana cin abinci",
-    desc_en: "2-day fever, still eating normally"
+  numfashi_tsanani: {
+    tier: 'red',
+    ha: "Jaririna yana numfashi da sauri sosai kuma kirjinsa yana shiga ciki lokacin da yake numfashi, yana fitar da sauti.",
+    en: "My baby is breathing very fast and I can see chest wall indrawing with each breath and grunting sound.",
+    label_ha: "Matsalar Numfashi / Severe Pneumonia",
+    label_en: "Severe Pneumonia & Chest Indrawing",
+    desc_ha: "Numfashi da sauri, kirji na shiga ciki, stridor",
+    desc_en: "Fast breathing, chest indrawing, stridor"
   },
-  zawo: {
-    tier: 'green',
-    ha: "Yaro na ya yi zawo sau biyu yau, amma yana wasa kuma ba zazzabi ko amai.",
-    en: "My child had loose stool twice today but is playing normally with no fever or vomiting.",
-    label_ha: "Dan Zawo / Mild Diarrhea",
-    label_en: "Dan Zawo / Mild Diarrhea",
-    desc_ha: "Zawo sau 2, babu zazzabi ko amai",
-    desc_en: "Loose stool x2, no fever or vomiting"
+  zawo_tsanani_cholera: {
+    tier: 'red',
+    ha: "Yaro yana zawo kamar ruwan shinkafa a jere, idanunsa sun fada ciki sosai, kuma fatarsa idan an ja ba ta komawa da sauri.",
+    en: "The child has severe watery diarrhea continuously like rice water, deeply sunken eyes, and very slow skin pinch recovery.",
+    label_ha: "Matsanancin Zawo / Cholera & Severe Dehydration",
+    label_en: "Cholera & Severe Dehydration",
+    desc_ha: "Idanu sun fada, fatar jiki ba ta komawa, zawo mara tsayawa",
+    desc_en: "Deep sunken eyes, skin pinch >2s, massive watery stool"
   },
   ciki_jini: {
     tier: 'red',
     ha: "Ina da ciki wata 7 kuma ga zubar jini a lokacin ciki tare da matsanancin ciwon kai da kumburin fuska.",
     en: "I am 7 months pregnant with heavy bleeding, severe headache, and facial swelling.",
-    label_ha: "Mai Ciki da Zubar Jini",
-    label_en: "Mai Ciki da Zubar Jini",
+    label_ha: "Mai Ciki da Zubar Jini / Obstetric Emergency",
+    label_en: "Pregnancy Bleeding & Preeclampsia",
     desc_ha: "Ciki wata 7, zubar jini + ciwon kai + kumburin fuska",
-    desc_en: "7 months pregnant, bleeding + headache + facial swelling"
+    desc_en: "7 months pregnant, heavy bleeding + facial swelling"
   },
-  amai_yaro: {
-    tier: 'amber',
-    ha: "Yaro yana amai sosai tun jiya dare, kuma baya iya sha ruwa.",
-    en: "My child has been vomiting severely since last night and cannot keep any fluids down.",
-    label_ha: "Amai Mai Tsanani / Severe Vomiting",
-    label_en: "Amai Mai Tsanani / Severe Vomiting",
-    desc_ha: "Amai tun jiya dare, baya iya sha ruwa",
-    desc_en: "Vomiting since last night, unable to retain fluids"
-  },
-  numfashi: {
+  meningitis: {
     tier: 'red',
-    ha: "Jaririna yana numfashi da sauri sosai kuma kirjinsa yana shiga ciki lokacin da yake numfashi.",
-    en: "My baby is breathing very fast and I can see the chest wall drawing in with each breath.",
-    label_ha: "Matsalar Numfashi / Breathing Difficulty",
-    label_en: "Matsalar Numfashi / Breathing Difficulty",
-    desc_ha: "Numfashi da sauri, kirji yana shiga ciki",
-    desc_en: "Fast breathing, chest indrawing visible"
-  },
-  ciwo_kunnen: {
-    tier: 'amber',
-    ha: "Yarana yana kuka kuma yana kama kunnensa. Wani ruwa yana fita daga kunnensa.",
-    en: "My child is crying and pulling at his ear. There is some fluid draining from the ear.",
-    label_ha: "Ciwo Kunnen / Ear Pain & Discharge",
-    label_en: "Ciwo Kunnen / Ear Pain & Discharge",
-    desc_ha: "Kama kunnen, ruwa yana fita — mai yiwuwa kamuwa",
-    desc_en: "Ear pulling, discharge — possible otitis media"
+    ha: "Yaro yana da zazzabi mai tsananin zafi, wuyansa ya taurare ba zai iya saukar da kansa ba, kuma haske na damun idanunsa.",
+    en: "The child has sudden very high fever, stiff neck, unable to bend head forward, and light sensitivity.",
+    label_ha: "Taurin Wuya / Suspected Meningitis",
+    label_en: "Stiff Neck & Acute Meningitis",
+    desc_ha: "Zazzabi mai zafi, wuya ya taurare, haske na damu",
+    desc_en: "High fever, neck stiffness, photophobia"
   },
   rashin_abinci: {
     tier: 'red',
-    ha: "Yaro na yana da rashin abinci mai tsanani, kafafunsa sun kumbura kuma fata tana ficewa.",
-    en: "My child has severe malnutrition, swollen legs and feet, and skin peeling off.",
-    label_ha: "Rashin Abinci Mai Tsanani / Severe Malnutrition",
-    label_en: "Rashin Abinci Mai Tsanani / Severe Malnutrition",
-    desc_ha: "Kumburin kafa, fatar jikin tana ficewa — SAM",
-    desc_en: "Leg oedema, skin peeling — Severe Acute Malnutrition"
-  },
-  zazzabi_cizon_sauro: {
-    tier: 'amber',
-    ha: "Dan uwana yana da zazzabi, sanyi mai tsanani da rawar jiki, da ciwon kai. Muna zaune kusa da fadama.",
-    en: "My family member has fever, severe chills and shaking, and a headache. We live near a swamp.",
-    label_ha: "Zazzabin Cizon Sauro / Suspected Malaria",
-    label_en: "Zazzabin Cizon Sauro / Suspected Malaria",
-    desc_ha: "Zazzabi + sanyi + rawar jiki kusa da fadama — Zazzabin cizon sauro",
-    desc_en: "Fever + chills + rigors near wetlands — Suspected malaria"
+    ha: "Yaro na yana da rashin abinci mai tsanani, kafafunsa sun kumbura kuma fata tana ficewa da canjin launin gashi.",
+    en: "My child has severe malnutrition, bilateral swollen legs/feet (oedema), and skin peeling off.",
+    label_ha: "Rashin Abinci Mai Tsanani / SAM (Kwashiorkor)",
+    label_en: "Severe Acute Malnutrition (Kwashiorkor)",
+    desc_ha: "Kumburin kafa biyu, fatar jiki na ficewa — SAM",
+    desc_en: "Bilateral pedal oedema, skin peeling — SAM"
   },
   jariri_sabo: {
     tier: 'red',
-    ha: "Jarirna na wata 3 baya motsi kamar yadda ya saba, baya shan nono kuma idanunsa sun zama rawaya.",
-    en: "My 3-week-old baby is not moving normally, is not feeding, and her eyes have turned yellow.",
-    label_ha: "Jariri Mai Zazzabi / Sick Neonate",
-    label_en: "Jariri Mai Zazzabi / Sick Neonate",
-    desc_ha: "Jariri wata 3, baya motsi, baya nono, idanu rawaya",
-    desc_en: "3-week neonate, lethargic, not feeding, jaundiced"
+    ha: "Jaririna na kwanaki 12 baya motsi kamar yadda ya saba, baya shan nono, cikinsa ya kumbura kuma cibiyarsa tana wari.",
+    en: "My 12-day-old newborn is lethargic, refuses to suck, has abdominal distension and foul-smelling umbilical discharge.",
+    label_ha: "Jariri Sabon Haihuwa / Severe Neonatal Sepsis",
+    label_en: "Severe Neonatal Sepsis & Umbilical Infection",
+    desc_ha: "Kwanaki 12, baya nono, cibi na wari — Gaggawa",
+    desc_en: "12 days old, unable to suck, infected umbilicus"
+  },
+  sumewa_suma: {
+    tier: 'red',
+    ha: "Yaron ya sume, baya amsa kira kuma idan aka taba shi baya farkawa ko kadan.",
+    en: "The child is completely unconscious, does not respond to voice, and cannot be awakened.",
+    label_ha: "Sumewa / Unconsciousness & Lethargy",
+    label_en: "Unconscious / Abnormally Sleepy Child",
+    desc_ha: "Baya farkawa, baya amsa kira — Gaggawa",
+    desc_en: "Unresponsive, unable to wake — Immediate Emergency"
+  },
+  zazzabi_mai_tsanani: {
+    tier: 'red',
+    ha: "Yaro yana zazzabin cizon sauro mai tsanani, idanunsa sun karkata sama, fitsarinsa ya zama baki kuma yana amai komai.",
+    en: "The child has severe malaria with rolling eyes, black-colored urine, and is vomiting everything.",
+    label_ha: "Matsanancin Zazzabin Cizon Sauro / Cerebral Malaria",
+    label_en: "Complicated Cerebral Malaria",
+    desc_ha: "Idanu sun karkata, fitsari baki, amai kowane lokaci",
+    desc_en: "Rolling eyes, black urine (blackwater fever), prostration"
+  },
+
+  // AMBER TIER: Clinical Assessment Required at PHC
+  zazzabi: {
+    tier: 'amber',
+    ha: "Yaro na yana da zazzabi da zafin jiki tun kwana biyu, amma yana cin abinci kuma yana wasa.",
+    en: "My child has had a fever for two days, but is active and eating normally.",
+    label_ha: "Zazzabi / Fever (Kwana 2)",
+    label_en: "Acute Fever (2 Days)",
+    desc_ha: "Zazzabi kwana 2, yana cin abinci, babu alamar hadari",
+    desc_en: "2-day fever, drinking normally, needs mRDT test"
+  },
+  zazzabi_cizon_sauro: {
+    tier: 'amber',
+    ha: "Dan uwana yana da zazzabi, sanyi mai tsanani da rawar jiki, da ciwon kai da kasala. Muna zaune kusa da fadama.",
+    en: "My family member has fever, severe chills and shaking, headache, and body aches. We live near a wetland.",
+    label_ha: "Zazzabin Cizon Sauro / Uncomplicated Malaria",
+    label_en: "Uncomplicated Malaria Suspected",
+    desc_ha: "Zazzabi + sanyi + rawar jiki — A je PHC don gwajin mRDT",
+    desc_en: "Fever, rigors, chills — Visit PHC for blood test"
+  },
+  amai_yaro: {
+    tier: 'amber',
+    ha: "Yaro yana amai sosai tun jiya dare, amma yana iya shan ruwa kadan kadan ba tare da amai ba.",
+    en: "My child has been vomiting since last night, but can sip fluids slowly without vomiting immediately.",
+    label_ha: "Amai / Persistent Vomiting",
+    label_en: "Persistent Vomiting (Retaining Some Fluids)",
+    desc_ha: "Amai tun jiya dare, a ba shi ruwan gishiri da sukari (ORS)",
+    desc_en: "Vomiting since last night, start ORS solution"
+  },
+  ciwo_kunnen: {
+    tier: 'amber',
+    ha: "Yarana yana kuka kuma yana kama kunnensa. Wani ruwa mai wari yana fita daga kunnensa tun kwanaki 3.",
+    en: "My child is crying and pulling at his ear. Foul-smelling pus has been draining from the ear for 3 days.",
+    label_ha: "Ciwon Kunne da Ruwa / Acute Otitis Media",
+    label_en: "Ear Infection & Purulent Discharge",
+    desc_ha: "Kama kunne, ruwa yana fita — Kamuwa a kunne",
+    desc_en: "Ear tugging, pus discharge — Acute otitis media"
+  },
+  tari_asma: {
+    tier: 'amber',
+    ha: "Yaro yana tari mai tsayi tun makonni biyu, kirjinsa na bushewa da kukan kyanwa (wheezing) musamman da dare.",
+    en: "Child has had a persistent cough for over 2 weeks with audible wheezing and tightness at night.",
+    label_ha: "Tari Mai Tsayi da Asma / Chronic Cough & Wheezing",
+    label_en: "Chronic Cough (>14 Days) & Wheeze",
+    desc_ha: "Tari fiye da kwanaki 14, kukan kyanwa a kirji",
+    desc_en: "Cough > 2 weeks, audible wheezing"
+  },
+  karancin_jini: {
+    tier: 'amber',
+    ha: "Yaro ya yi fari sosai a tafin hannunsa da cikin idanunsa, yana yawan gajiyawa kuma baya son wasa.",
+    en: "The child's palms and conjunctiva are noticeably pale, gets tired easily and lacks energy to play.",
+    label_ha: "Karancin Jini / Severe Palmar Pallor",
+    label_en: "Suspected Severe Anaemia / Pallor",
+    desc_ha: "Farin tafin hannu da idanu, kasala — Bukatar gwajin jini",
+    desc_en: "Pale palms and eye conjunctiva, lethargic"
+  },
+  kyanda_measles: {
+    tier: 'amber',
+    ha: "Yaro yana zazzabi da kuraje a fuskarsa da wuyansa, idanunsa sun yi ja kuma yana tari da majina.",
+    en: "Child has fever with a red rash starting on face and neck, red watery eyes, and runny nose.",
+    label_ha: "Kyanda / Suspected Measles",
+    label_en: "Suspected Measles with Rash & Red Eyes",
+    desc_ha: "Kuraje daga fuska, jajayen idanu, zazzabi",
+    desc_en: "Maculopapular rash, conjunctivitis, fever"
+  },
+  ciwon_ido: {
+    tier: 'amber',
+    ha: "Jariri yana fitar da farin ruwa da kwantsa mai yawa daga idanunsa, fatar idon ta kumbura ba ya iya budewa.",
+    en: "Baby has thick yellowish discharge from both eyes, eyelids swollen shut with dried crusts.",
+    label_ha: "Ciwon Ido Mai Kwantsa / Purulent Eye Infection",
+    label_en: "Purulent Eye Infection / Conjunctivitis",
+    desc_ha: "Idanu sun kumbura da kwantsa — Bukatar maganin shafawa a PHC",
+    desc_en: "Swollen eyelids, pus discharge — Needs clinic review"
+  },
+  zawo_jini_dysentery: {
+    tier: 'amber',
+    ha: "Yaro yana zawo mai ruwa-ruwa tare da jini a ciki da ciwon ciki mai murɗawa.",
+    en: "Child has loose watery diarrhea with visible blood streaks in stool and abdominal cramping.",
+    label_ha: "Zawo Mai Jini / Dysentery",
+    label_en: "Dysentery (Blood in Stool)",
+    desc_ha: "Zawo da jini, murdawar ciki — Bukatar duba a PHC",
+    desc_en: "Bloody diarrhea, abdominal cramps — PHC referral"
+  },
+
+  // GREEN TIER: Home Care & Monitoring
+  zawo: {
+    tier: 'green',
+    ha: "Yaro na ya yi zawo sau biyu yau, amma yana wasa, yana shan ruwa da kyau kuma babu zazzabi ko amai.",
+    en: "My child had loose stool twice today but is playing normally, drinking well with no fever or vomiting.",
+    label_ha: "Dan Zawo Mai Sauki / Mild Diarrhea",
+    label_en: "Mild Diarrhea (No Dehydration)",
+    desc_ha: "Zawo sau 2, yana wasa da shan ruwa — Kula a gida da ORS",
+    desc_en: "Loose stool x2, active and drinking — Home ORS care"
+  },
+  mura_majina: {
+    tier: 'green',
+    ha: "Yaro yana mura da tsiyayar majina a hanci tun jiya, amma ba zazzabi, yana cin abinci kuma numfashinsa na tafiya daidai.",
+    en: "Child has a common cold with clear runny nose since yesterday, no fever, eating well, breathing normally.",
+    label_ha: "Mura da Majina / Common Cold (URTI)",
+    label_en: "Common Cold & Runny Nose",
+    desc_ha: "Tsiyayar majina, babu zazzabi, numfashi daidai",
+    desc_en: "Clear runny nose, normal breathing, warm fluids"
+  },
+  rigakafi_zazzabi: {
+    tier: 'green',
+    ha: "Jarirna ya karbi allurar rigakafi jiya a PHC, yau jikinsa yana dan dumi kadan kuma gurin allurar ya dan kumbura.",
+    en: "My baby received routine immunization yesterday at the PHC; today has a mild warm body and slight soreness at the injection site.",
+    label_ha: "Dan Zazzabin Rigakafi / Post-Vaccine Mild Reaction",
+    label_en: "Post-Immunization Mild Fever",
+    desc_ha: "Dumin jiki bayan rigakafi — Alama ce mai kyau ta garkuwar jiki",
+    desc_en: "Mild warmth after vaccine — Normal healthy immune response"
   }
 };
 
@@ -521,9 +625,51 @@ function loadScenario(key) {
 }
 
 function clearInput() {
-  document.getElementById('symptom-text').value = '';
+  const ta = document.getElementById('symptom-text');
+  if (ta) {
+    ta.value = '';
+    ta.style.height = 'auto';
+  }
   document.getElementById('results-state').classList.add('hidden');
   STATE.currentResult = null;
+  const heroWrap = document.getElementById('chatgpt-hero');
+  if (heroWrap) heroWrap.classList.remove('docked');
+}
+
+/** Record triage consultation in sidebar history (ChatGPT style) */
+function recordConsultationHistory(title, tier) {
+  const list = document.getElementById('sidebar-history-list');
+  if (!list) return;
+  const item = document.createElement('button');
+  item.className = 'history-item';
+  item.type = 'button';
+  const tierColor = String(tier).toLowerCase().includes('red')
+    ? 'red'
+    : (String(tier).toLowerCase().includes('green') ? 'green' : 'amber');
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  item.innerHTML = `
+    <span class="history-item-dot ${tierColor}"></span>
+    <span class="history-item-text">${title || "Sabuwar Triage"}</span>
+    <span class="history-item-time">${timeStr}</span>
+  `;
+  list.insertBefore(item, list.firstChild);
+}
+
+/** Auto-resize textarea and support Enter-to-submit */
+function setupTextareaAutoResize() {
+  const textarea = document.getElementById('symptom-text');
+  if (!textarea) return;
+  textarea.addEventListener('input', () => {
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.min(textarea.scrollHeight, 180) + 'px';
+  });
+  textarea.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      submitTriage();
+    }
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -713,6 +859,13 @@ function renderResult(data) {
   `).join('');
 
   panel.classList.remove('hidden');
+  const heroWrap = document.getElementById('chatgpt-hero');
+  if (heroWrap) heroWrap.classList.add('docked');
+
+  // Record consultation in recent history
+  const historyTitle = isHa ? (data.summary_ha || "Tantancewar Mara Lafiya") : (data.summary_en || "Patient Assessment");
+  recordConsultationHistory(historyTitle.slice(0, 32), data.tier);
+
   panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -1191,6 +1344,7 @@ function renderReferralList(data, isOffline = false) {
 window.addEventListener('DOMContentLoaded', () => {
   applyTheme(STATE.theme);
   setupSpeechRecognition();
+  setupTextareaAutoResize();
   applyI18n();
   loadVaccines(0);
 });

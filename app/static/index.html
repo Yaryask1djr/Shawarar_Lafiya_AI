@@ -48,9 +48,9 @@
 
       <!-- Quick Action: New Clinical Assessment (ChatGPT "+ New Chat" pattern) -->
       <div class="sidebar-action-wrap">
-        <button class="btn-new-assessment" onclick="startNewTriage()" id="btn-new-assessment">
+        <button class="btn-new-assessment" onclick="startNewTriage()" id="btn-new-assessment" title="Fara Sabon Triage">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          <span id="lbl-new-assessment">+ Sabon Triage</span>
+          <span id="lbl-new-assessment">Sabon Triage</span>
         </button>
       </div>
 
@@ -91,11 +91,33 @@
       <!-- Clinical Library Section in Sidebar -->
       <div class="sidebar-section-wrap">
         <div class="sidebar-section-label" id="lbl-sidebar-library">GIRKIN MISALAI</div>
-        <button class="sidebar-library-btn" onclick="openScenarioDialog()" id="sidebar-btn-scenarios">
+        <button class="sidebar-library-btn" onclick="openScenarioDialog()" id="sidebar-btn-scenarios" title="Duba dukkan ciwo 21">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4"></path><path d="M12 16h4"></path></svg>
           <span id="btn-scenarios-label">Zaɓi Yanayin Ciwo</span>
-          <span class="library-count-badge">10</span>
+          <span class="library-count-badge">21</span>
         </button>
+      </div>
+
+      <!-- Recent Clinical Consultations History (ChatGPT Style) -->
+      <div class="sidebar-history-wrap">
+        <div class="sidebar-section-label" id="lbl-sidebar-history">TARIHIN TANTANCEWA</div>
+        <div class="sidebar-history-list" id="sidebar-history-list">
+          <button class="history-item" onclick="loadScenario('zazzabi_cizon_sauro')" type="button">
+            <span class="history-item-dot amber"></span>
+            <span class="history-item-text">Zazzabin Cizon Sauro</span>
+            <span class="history-item-time">Yau</span>
+          </button>
+          <button class="history-item" onclick="loadScenario('numfashi_tsanani')" type="button">
+            <span class="history-item-dot red"></span>
+            <span class="history-item-text">Matsalar Numfashi (Pneumonia)</span>
+            <span class="history-item-time">Jiya</span>
+          </button>
+          <button class="history-item" onclick="loadScenario('zawo')" type="button">
+            <span class="history-item-dot green"></span>
+            <span class="history-item-text">Dan Zawo Mai Sauki (ORS)</span>
+            <span class="history-item-time">14 Nov</span>
+          </button>
+        </div>
       </div>
 
       <!-- Emergency Lifeline Quick Access -->
@@ -105,6 +127,18 @@
           <span>Gaggawa &bull; Emergency</span>
         </div>
         <a href="tel:112" class="emergency-sidebar-call">Kira 112</a>
+      </div>
+
+      <!-- Health Worker Profile Card (ChatGPT Style) -->
+      <div class="sidebar-user-card">
+        <div class="user-avatar-wrap">
+          <span class="user-avatar-letters">YK</span>
+          <span class="user-status-dot online" title="A shirye / Online"></span>
+        </div>
+        <div class="user-info-text">
+          <strong class="user-name">Yaryaskidjr</strong>
+          <span class="user-role-badge">CHW &bull; Kano PHC</span>
+        </div>
       </div>
 
       <!-- Sidebar Footer Controls -->
@@ -156,49 +190,91 @@
           <!-- VIEW 1: SYMPTOM TRIAGE (AI Workspace) -->
           <section id="view-triage" class="stage-view active">
             
-            <!-- Modern AI Prompt Hero Box -->
-            <div class="card-hero triage-hero">
-              
-              <div class="voice-hero">
-                <button id="btn-voice-orb" class="voice-orb" onclick="toggleVoiceInput()" title="Voice input">
-                  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                    <line x1="12" y1="19" x2="12" y2="23"></line>
-                    <line x1="8" y1="23" x2="16" y2="23"></line>
+            <!-- Modern ChatGPT-Inspired AI Prompt Centerpiece -->
+            <div id="chatgpt-hero" class="chatgpt-hero-wrap">
+
+              <!-- Calm Hero Greeting -->
+              <div class="hero-greeting-block">
+                <div class="hero-brand-mark">
+                  <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+                    <path d="M12 9v4m-2-2h4" stroke="currentColor" stroke-width="2.2"></path>
                   </svg>
-                </button>
-                <div class="voice-hero-text">
-                  <h2 class="voice-title" id="voice-prompt-title">Auna Alamomin Mara Lafiya</h2>
-                  <span class="voice-subtitle" id="voice-prompt-sub">Fadi ko rubuta abin da ke damun mai lafiya</span>
                 </div>
+                <h2 class="hero-prompt-headline" id="voice-prompt-title">A shirye nake don taimakawa.</h2>
+                <p class="hero-prompt-sub" id="voice-prompt-sub">Fadi ko rubuta alamomin mara lafiya don tantancewa ta tsarin WHO IMCI.</p>
               </div>
 
-              <!-- Quick Scenario Trigger Button -->
-              <div class="scenario-trigger-row">
-                <button class="scenario-trigger-btn" onclick="openScenarioDialog()" id="btn-scenarios">
-                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4"></path><path d="M12 16h4"></path><path d="M8 11h.01"></path><path d="M8 16h.01"></path></svg>
-                  <span id="btn-scenarios-label-inner">Zaɓi Yanayin Ciwo</span>
-                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                </button>
-              </div>
-
-              <!-- AI Symptom Input Container -->
-              <div class="input-container">
-                <textarea id="symptom-text" rows="3" placeholder="Bayyana alamomin ciwo a nan..."></textarea>
-                
-                <div class="input-actions-row">
-                  <div class="input-hint-wrap">
-                    <span class="input-hint-text">WHO IMCI Protocol Active</span>
-                  </div>
-                  <div class="btn-group">
-                    <button class="btn-ghost" onclick="clearInput()" id="btn-clear">Goge</button>
-                    <button class="btn-primary" onclick="submitTriage()" id="btn-submit">
-                      <span id="btn-submit-label">Auna Yanzu</span>
-                      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              <!-- Floating Omni-Input Capsule (ChatGPT Style) -->
+              <div class="omni-capsule-container">
+                <div class="omni-capsule">
+                  <div class="omni-input-row">
+                    <!-- Attach / Scenario Trigger Button -->
+                    <button class="omni-attach-btn" onclick="openScenarioDialog()" id="btn-scenarios" title="Zaɓi Yanayin Ciwo ko Misali" type="button">
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                     </button>
+
+                    <!-- Auto-Resizing Textarea -->
+                    <textarea id="symptom-text" rows="1" placeholder="Bayyana alamomin ciwo a nan..."></textarea>
+
+                    <!-- Embedded Action Tools -->
+                    <div class="omni-tools-group">
+                      <!-- mRDT Vision Fast Switch -->
+                      <button class="omni-tool-btn" onclick="switchTab('mrdt')" title="Fassarar mRDT ta Hoto" type="button">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                      </button>
+
+                      <!-- Speech-To-Text Mic Orb -->
+                      <button id="btn-voice-orb" class="omni-voice-btn" onclick="toggleVoiceInput()" title="Saurari Murya (Voice Input)" type="button">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                          <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                          <line x1="12" y1="19" x2="12" y2="23"></line>
+                          <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                      </button>
+
+                      <!-- Submit Triage Arrow Button -->
+                      <button class="omni-submit-btn" onclick="submitTriage()" id="btn-submit" title="Auna Yanzu" type="button">
+                        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                        <span id="btn-submit-label" class="sr-only">Auna Yanzu</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Subtle Capsule Bottom Tagline -->
+                  <div class="omni-bottom-bar">
+                    <span class="omni-protocol-tag">
+                      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                      <span>WHO IMCI &amp; NPHCDA Protocols Active</span>
+                    </span>
+                    <button class="btn-ghost" onclick="clearInput()" id="btn-clear" type="button">Goge</button>
                   </div>
                 </div>
+              </div>
+
+              <!-- Contextual Action Chips (Like ChatGPT Suggestions) -->
+              <div class="hero-action-chips">
+                <button class="hero-chip" onclick="loadScenario('zazzabi_cizon_sauro')" type="button">
+                  <span class="chip-icon">🩺</span>
+                  <span>Zazzabi da Amai</span>
+                </button>
+                <button class="hero-chip" onclick="switchTab('mrdt')" type="button">
+                  <span class="chip-icon">🔬</span>
+                  <span>Fassara Hoton mRDT</span>
+                </button>
+                <button class="hero-chip" onclick="switchTab('referral')" type="button">
+                  <span class="chip-icon">📍</span>
+                  <span>Nemo PHC Mafi Kusa</span>
+                </button>
+                <button class="hero-chip" onclick="switchTab('imm')" type="button">
+                  <span class="chip-icon">💉</span>
+                  <span>Jadawalin Rigakafi</span>
+                </button>
+                <button class="hero-chip chip-highlight" onclick="openScenarioDialog()" type="button">
+                  <span class="chip-icon">📋</span>
+                  <span id="btn-scenarios-label-inner">Zaɓi Yanayin Ciwo (21)</span>
+                </button>
               </div>
 
             </div>
