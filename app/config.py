@@ -9,6 +9,7 @@ class Settings(BaseModel):
     # Environment
     ENV: str = os.getenv("APP_ENV", "development")
     DEBUG: bool = os.getenv("DEBUG", "true").lower() == "true"
+    CORS_ORIGINS: list[str] = [orig.strip() for orig in os.getenv("CORS_ORIGINS", "*").split(",") if orig.strip()]
 
     # ── Gemini LLM ────────────────────────────────────────────────────────────
     # Set GEMINI_API_KEY to enable Gemini 2.5 Flash triage.

@@ -38,10 +38,16 @@ app = FastAPI(
     description="Primary Healthcare & Symptom Triage Voicebot serving Hausa-speaking rural communities and CHEWs."
 )
 
+# W3C / RFC 6454 CORS Compliance:
+# When allow_origins contains "*", allow_credentials MUST be False.
+# Explicit origins dynamically activate credentials support.
+cors_origins = settings.CORS_ORIGINS if hasattr(settings, "CORS_ORIGINS") else ["*"]
+allow_creds = False if "*" in cors_origins else True
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
+    allow_origins=cors_origins,
+    allow_credentials=allow_creds,
     allow_methods=["*"],
     allow_headers=["*"],
 )

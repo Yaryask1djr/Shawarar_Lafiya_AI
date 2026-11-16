@@ -24,6 +24,21 @@ def test_health_endpoint():
     assert data["status"] == "healthy"
     assert data["guardrails_active"] is True
 
+def test_cors_headers_compliance():
+    # Preflight OPTIONS request
+    headers = {
+        "Origin": "http://localhost:3000",
+        "Access-Control-Request-Method": "POST",
+        "Access-Control-Request-Headers": "content-type",
+    }
+    response = client.options("/api/v1/triage/text", headers=headers)
+    assert response.status_code == 200
+    assert "access-control-allow-origin" in response.headers
+    assert response.headers["access-control-allow-origin"] == "*"
+    # Under W3C CORS spec, wildcard origin must never include allow-credentials: true
+    assert response.headers.get("access-control-allow-credentials") != "true"
+
+
 def test_triage_text_red_emergency():
     payload = {
         "symptoms_text": "Yaro na yana karkarwa da farfadiya, ya daina shan nono.",
