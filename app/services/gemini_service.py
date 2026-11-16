@@ -112,9 +112,13 @@ Instructions:
                 )
                 raw = response.text.strip()
 
-                # Strip markdown fences if model forgets response_mime_type
-                raw = re.sub(r"^```(?:json)?\s*", "", raw)
-                raw = re.sub(r"\s*```$", "", raw)
+                # Robust JSON extraction: handles preamble, postamble, or markdown fences
+                json_match = re.search(r"\{.*\}", raw, re.DOTALL)
+                if json_match:
+                    raw = json_match.group(0)
+                else:
+                    raw = re.sub(r"^```(?:json)?\s*", "", raw)
+                    raw = re.sub(r"\s*```$", "", raw)
 
                 data = json.loads(raw)
                 self._validate_triage_json(data)
@@ -150,12 +154,35 @@ Instructions:
         missing = self.REQUIRED_KEYS - set(data.keys())
         if missing:
             raise ValueError(f"Gemini response missing required keys: {missing}")
-        tier_val = str(data.get("tier", "")).strip().upper()
-        if tier_val not in self.VALID_TIERS:
+
+        raw_tier = str(data.get("tier", "")).strip().upper()
+        if raw_tier in self.VALID_TIERS:
+            tier_val = raw_tier
+        elif "RED" in raw_tier:
+            tier_val = "RED"
+        elif "YELLOW" in raw_tier:
+            tier_val = "YELLOW"
+        elif "GREEN" in raw_tier:
+            tier_val = "GREEN"
+        else:
             raise ValueError(f"Invalid tier value: {data.get('tier')}")
+
         data["tier"] = tier_val
+
+        # Normalize is_emergency to strict boolean
+        if tier_val == "RED":
+            data["is_emergency"] = True
+        elif isinstance(data.get("is_emergency"), str):
+            data["is_emergency"] = data["is_emergency"].strip().lower() in ("true", "1", "yes")
+        elif not isinstance(data.get("is_emergency"), bool):
+            data["is_emergency"] = False
+
+        # Support single string coercion into list
         for field in ("primary_actions_ha", "primary_actions_en"):
-            if not isinstance(data.get(field), list) or len(data[field]) == 0:
+            val = data.get(field)
+            if isinstance(val, str) and val.strip():
+                data[field] = [val.strip()]
+            elif not isinstance(val, list) or len(val) == 0:
                 raise ValueError(f"Field '{field}' must be a non-empty list")
 
 

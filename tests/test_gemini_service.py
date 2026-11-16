@@ -135,3 +135,43 @@ async def test_triage_service_uses_gemini_when_available():
         assert response.tier == TriageTier.YELLOW
         assert response.metadata.get("triage_source") == "gemini_2.5_flash"
         mock_gemini.run_triage.assert_called_once()
+
+@pytest.mark.anyio
+async def test_gemini_resilience_preamble_and_tier_normalization():
+    service = GeminiService()
+    service._available = True
+
+    # Preamble + markdown fences + descriptive tier + string boolean
+    raw_ai_output = """Here is your clinical triage evaluation:
+```json
+{
+  "tier": "Tier: RED (Emergency)",
+  "tier_label_ha": "Gaggawa",
+  "tier_label_en": "Emergency",
+  "is_emergency": "true",
+  "summary_ha": "Gaggawa ce saboda zazzabi mai tsanani.",
+  "summary_en": "Emergency due to high fever and signs.",
+  "primary_actions_ha": "Kai shi asibiti cikin gaggawa",
+  "primary_actions_en": "Take immediately to hospital",
+  "clinical_disclaimer_ha": "Shawarar Lafiya taimako ne.",
+  "clinical_disclaimer_en": "Triage aid only.",
+  "nearest_care_guidance_ha": "Je PHC mafi kusa.",
+  "nearest_care_guidance_en": "Go to nearest PHC."
+}
+```
+Please let me know if you need further help!"""
+
+    mock_response = MagicMock()
+    mock_response.text = raw_ai_output
+    mock_model = MagicMock()
+    mock_model.generate_content.return_value = mock_response
+    service._model = mock_model
+
+    result = await service.run_triage("Yaro na yana karkarwa", language="ha")
+    assert result is not None
+    assert result["tier"] == "RED"
+    assert result["is_emergency"] is True
+    assert isinstance(result["primary_actions_ha"], list)
+    assert result["primary_actions_ha"][0] == "Kai shi asibiti cikin gaggawa"
+    assert isinstance(result["primary_actions_en"], list)
+
