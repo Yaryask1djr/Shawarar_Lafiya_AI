@@ -6,6 +6,7 @@ Primary Health & Symptom Triage Voicebot Backend.
 import os
 import logging
 import uuid
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response, FileResponse
@@ -58,30 +59,15 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             )
         return response
 
-app = FastAPI(
-    title=settings.PROJECT_NAME,
-    version=settings.VERSION,
-    description="Primary Healthcare & Symptom Triage Voicebot serving Hausa-speaking rural communities and CHEWs."
-)
-
 # W3C / RFC 6454 CORS Compliance:
 # When allow_origins contains "*", allow_credentials MUST be False.
 # Explicit origins dynamically activate credentials support.
 cors_origins = settings.CORS_ORIGINS if hasattr(settings, "CORS_ORIGINS") else ["*"]
 allow_creds = False if "*" in cors_origins else True
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=cors_origins,
-    allow_credentials=allow_creds,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-app.add_middleware(SecurityHeadersMiddleware)
-
-# ── Startup safety warnings ───────────────────────────────────────────────────
-@app.on_event("startup")
-async def startup_warnings():
+# ── Modern FastAPI Lifespan Handler ───────────────────────────────────────────
+@asynccontextmanager
+async def lifespan(app_instance: FastAPI):
     """Emit loud warnings for dangerous production misconfigurations (SEC-03, SEC-07)."""
     if settings.ENV == "production":
         if "*" in cors_origins:
@@ -94,6 +80,23 @@ async def startup_warnings():
                 "[SECURITY SEC-07] DEBUG=True in production! "
                 "Set DEBUG=false to prevent stack-trace exposure in HTTP 500 responses."
             )
+    yield
+
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    version=settings.VERSION,
+    description="Primary Healthcare & Symptom Triage Voicebot serving Hausa-speaking rural communities and CHEWs.",
+    lifespan=lifespan
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    allow_credentials=allow_creds,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app.add_middleware(SecurityHeadersMiddleware)
 
 # Ensure audio upload directory exists; fallback to /tmp in read-only serverless environments
 try:
