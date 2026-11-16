@@ -1,0 +1,8 @@
+# Vercel Deployment Ignore List
+tests/
+.pytest_cache/
+docs/
+uploads/
+requirements-dev.txt
+.git/
+.gitignore

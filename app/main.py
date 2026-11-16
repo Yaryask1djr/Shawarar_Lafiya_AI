@@ -95,7 +95,16 @@ async def startup_warnings():
                 "Set DEBUG=false to prevent stack-trace exposure in HTTP 500 responses."
             )
 
-os.makedirs(settings.AUDIO_UPLOAD_DIR, exist_ok=True)
+# Ensure audio upload directory exists; fallback to /tmp in read-only serverless environments
+try:
+    os.makedirs(settings.AUDIO_UPLOAD_DIR, exist_ok=True)
+except (OSError, PermissionError):
+    import tempfile
+    settings.AUDIO_UPLOAD_DIR = os.path.join(tempfile.gettempdir(), "uploads")
+    try:
+        os.makedirs(settings.AUDIO_UPLOAD_DIR, exist_ok=True)
+    except Exception:
+        pass
 
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 if os.path.exists(static_dir):

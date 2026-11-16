@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ha" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#4f46e5" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#090d16" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Shawarar Lafiya — AI Primary Healthcare Dashboard</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="alternate icon" type="image/png" href="/static/favicon.png">
+  <link rel="shortcut icon" href="/static/favicon.ico">
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Full AI-Native Dashboard Layout -->
+  <div class="dashboard-layout">
+
+    <!-- Mobile Drawer Backdrop -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>
+
+    <!-- Collapsible Sidebar Navigation (ChatGPT / Claude / Gemini Style) -->
+    <aside class="dashboard-sidebar" id="dashboard-sidebar">
+      
+      <!-- Brand & Identity -->
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-glyph">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+              <path d="M12 9v4m-2-2h4" stroke="currentColor" stroke-width="2.2"></path>
+            </svg>
+          </div>
+          <div class="brand-title-wrap">
+            <div class="brand-title-row">
+              <h1 class="brand-title">Shawarar Lafiya</h1>
+              <span class="clinical-badge">WHO IMCI</span>
+            </div>
+            <span class="brand-tagline" id="brand-tagline">Jagorar Kiwon Lafiya</span>
+          </div>
+        </div>
+
+        <button class="sidebar-close-btn" id="sidebar-close-btn" onclick="closeSidebar()" title="Close navigation">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <!-- Quick Action: New Clinical Assessment (ChatGPT "+ New Chat" pattern) -->
+      <div class="sidebar-action-wrap">
+        <button class="btn-new-assessment" onclick="startNewTriage()" id="btn-new-assessment" title="Fara Sabon Triage">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span id="lbl-new-assessment">Sabon Triage</span>
+        </button>
+      </div>
+
+      <!-- Main Navigation Modules -->
+      <nav class="sidebar-nav">
+        <div class="sidebar-section-label" id="lbl-nav-modules">MODULIN AI</div>
+
+        <button id="tab-triage" class="nav-item active" onclick="switchTab('triage')">
+          <div class="nav-item-icon">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+          </div>
+          <span id="tab-label-triage" class="nav-item-text">Tantance Alamomi</span>
+          <span class="nav-item-pip"></span>
+        </button>
+
+        <button id="tab-mrdt" class="nav-item" onclick="switchTab('mrdt')">
+          <div class="nav-item-icon">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          </div>
+          <span id="tab-label-mrdt" class="nav-item-text">Gwajin mRDT</span>
+        </button>
+
+        <button id="tab-referral" class="nav-item" onclick="switchTab('referral')">
+          <div class="nav-item-icon">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          </div>
+          <span id="tab-label-referral" class="nav-item-text">Nemi PHC</span>
+        </button>
+
+        <button id="tab-imm" class="nav-item" onclick="switchTab('imm')">
+          <div class="nav-item-icon">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 2 4 4"></path><path d="m17 7 3-3"></path><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"></path></svg>
+          </div>
+          <span id="tab-label-imm" class="nav-item-text">Rigakafi</span>
+        </button>
+      </nav>
+
+      <!-- Clinical Library Section in Sidebar -->
+      <div class="sidebar-section-wrap">
+        <div class="sidebar-section-label" id="lbl-sidebar-library">GIRKIN MISALAI</div>
+        <button class="sidebar-library-btn" onclick="openScenarioDialog()" id="sidebar-btn-scenarios" title="Duba dukkan ciwo 21">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4"></path><path d="M12 16h4"></path></svg>
+          <span id="btn-scenarios-label">Zaɓi Yanayin Ciwo</span>
+          <span class="library-count-badge">21</span>
+        </button>
+      </div>
+
+      <!-- Recent Clinical Consultations History (ChatGPT Style) -->
+      <div class="sidebar-history-wrap">
+        <div class="sidebar-section-label" id="lbl-sidebar-history">TARIHIN TANTANCEWA</div>
+        <div class="sidebar-history-list" id="sidebar-history-list">
+          <button class="history-item" onclick="loadScenario('zazzabi_cizon_sauro')" type="button">
+            <span class="history-item-dot amber"></span>
+            <span class="history-item-text">Zazzabin Cizon Sauro</span>
+            <span class="history-item-time">Yau</span>
+          </button>
+          <button class="history-item" onclick="loadScenario('numfashi_tsanani')" type="button">
+            <span class="history-item-dot red"></span>
+            <span class="history-item-text">Matsalar Numfashi (Pneumonia)</span>
+            <span class="history-item-time">Jiya</span>
+          </button>
+          <button class="history-item" onclick="loadScenario('zawo')" type="button">
+            <span class="history-item-dot green"></span>
+            <span class="history-item-text">Dan Zawo Mai Sauki (ORS)</span>
+            <span class="history-item-time">14 Nov</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Emergency Lifeline Quick Access -->
+      <div class="sidebar-emergency-card">
+        <div class="emergency-card-top">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+          <span>Gaggawa &bull; Emergency</span>
+        </div>
+        <a href="tel:112" class="emergency-sidebar-call">Kira 112</a>
+      </div>
+
+      <!-- Health Worker Profile Card (Preserved for later usage)
+      <div class="sidebar-user-card" id="sidebar-user-card">
+        <div class="user-avatar-wrap">
+          <span class="user-avatar-letters">YK</span>
+          <span class="user-status-dot online" title="A shirye / Online"></span>
+        </div>
+        <div class="user-info-text">
+          <strong class="user-name">Yaryaskidjr</strong>
+          <span class="user-role-badge">CHW &bull; Kano PHC</span>
+        </div>
+      </div>
+      -->
+
+      <!-- Sidebar Footer Controls -->
+      <div class="sidebar-footer">
+        <div class="segmented-lang">
+          <button id="btn-lang-ha" class="lang-option active" onclick="setLanguage('ha')">HA</button>
+          <button id="btn-lang-en" class="lang-option" onclick="setLanguage('en')">EN</button>
+        </div>
+
+        <button id="theme-toggle" class="btn-icon" onclick="toggleTheme()" title="Toggle Theme">
+          <svg id="theme-icon-sun" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          <svg id="theme-icon-moon" class="hidden" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- Main Workspace Area -->
+    <div class="dashboard-main">
+
+      <!-- Workspace Topbar -->
+      <header class="workspace-topbar">
+        <div class="topbar-left">
+          <button class="topbar-hamburger-btn" id="sidebar-toggle-btn" onclick="toggleSidebar()" title="Toggle navigation">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+          <div class="topbar-title-block">
+            <span class="topbar-section-title" id="topbar-view-title">Tantance Alamomi</span>
+            <span class="topbar-section-sub">WHO IMCI &bull; Clinical Decision Support</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="topbar-status-chip">
+            <span class="status-pulse-dot"></span>
+            <span id="voice-status-indicator">A shirye</span>
+          </div>
+          <a href="tel:112" class="topbar-emergency-pill" title="Kira Sufurin Gaggawa">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            <span>112</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- Scrollable Main Stage Container -->
+      <main class="workspace-content">
+        <div class="content-max-width">
+
+          <!-- VIEW 1: SYMPTOM TRIAGE (AI Workspace) -->
+          <section id="view-triage" class="stage-view active">
+            
+            <!-- Modern ChatGPT-Inspired AI Prompt Centerpiece -->
+            <div id="chatgpt-hero" class="chatgpt-hero-wrap">
+
+              <!-- Calm Hero Greeting -->
+              <div class="hero-greeting-block">
+                <div class="hero-brand-mark">
+                  <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+                    <path d="M12 9v4m-2-2h4" stroke="currentColor" stroke-width="2.2"></path>
+                  </svg>
+                </div>
+                <h2 class="hero-prompt-headline" id="voice-prompt-title">A shirye nake don taimakawa.</h2>
+                <p class="hero-prompt-sub" id="voice-prompt-sub">Fadi ko rubuta alamomin mara lafiya don tantancewa ta tsarin WHO IMCI.</p>
+              </div>
+
+              <!-- Floating Omni-Input Capsule (ChatGPT Style) -->
+              <div class="omni-capsule-container">
+                <div class="omni-capsule">
+                  <div class="omni-input-row">
+                    <!-- Attach / Scenario Trigger Button -->
+                    <button class="omni-attach-btn" onclick="openScenarioDialog()" id="btn-scenarios" title="Zaɓi Yanayin Ciwo ko Misali" type="button">
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+
+                    <!-- Auto-Resizing Textarea -->
+                    <textarea id="symptom-text" rows="1" placeholder="Bayyana alamomin ciwo a nan..."></textarea>
+
+                    <!-- Embedded Action Tools -->
+                    <div class="omni-tools-group">
+                      <!-- mRDT Vision Fast Switch -->
+                      <button class="omni-tool-btn" onclick="switchTab('mrdt')" title="Fassarar mRDT ta Hoto" type="button">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                      </button>
+
+                      <!-- Speech-To-Text Mic Orb -->
+                      <button id="btn-voice-orb" class="omni-voice-btn" onclick="toggleVoiceInput()" title="Saurari Murya (Voice Input)" type="button">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                          <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                          <line x1="12" y1="19" x2="12" y2="23"></line>
+                          <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                      </button>
+
+                      <!-- Submit Triage Arrow Button -->
+                      <button class="omni-submit-btn" onclick="submitTriage()" id="btn-submit" title="Auna Yanzu" type="button">
+                        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                        <span id="btn-submit-label" class="sr-only">Auna Yanzu</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Subtle Capsule Bottom Tagline -->
+                  <div class="omni-bottom-bar">
+                    <span class="omni-protocol-tag">
+                      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                      <span>WHO IMCI &amp; NPHCDA Protocols Active</span>
+                    </span>
+                    <button class="btn-ghost" onclick="clearInput()" id="btn-clear" type="button">Goge</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Contextual Action Chips (Like ChatGPT Suggestions) -->
+              <div class="hero-action-chips">
+                <button class="hero-chip" onclick="loadScenario('zazzabi_cizon_sauro')" type="button">
+                  <span class="chip-icon">🩺</span>
+                  <span>Zazzabi da Amai</span>
+                </button>
+                <button class="hero-chip" onclick="switchTab('mrdt')" type="button">
+                  <span class="chip-icon">🔬</span>
+                  <span>Fassara Hoton mRDT</span>
+                </button>
+                <button class="hero-chip" onclick="switchTab('referral')" type="button">
+                  <span class="chip-icon">📍</span>
+                  <span>Nemo PHC Mafi Kusa</span>
+                </button>
+                <button class="hero-chip" onclick="switchTab('imm')" type="button">
+                  <span class="chip-icon">💉</span>
+                  <span>Jadawalin Rigakafi</span>
+                </button>
+                <button class="hero-chip chip-highlight" onclick="openScenarioDialog()" type="button">
+                  <span class="chip-icon">📋</span>
+                  <span id="btn-scenarios-label-inner">Zaɓi Yanayin Ciwo (21)</span>
+                </button>
+              </div>
+
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading-state" class="loading-panel hidden">
+              <div class="pulsing-loader"></div>
+              <p id="loading-label">Ana tantancewa bisa tsarin WHO IMCI...</p>
+            </div>
+
+            <!-- Unified Clinical Report Card -->
+            <div id="results-state" class="results-container hidden">
+              <div class="report-card" id="report-card">
+                
+                <!-- Severity Header Strip -->
+                <div id="result-status-card" class="report-header red">
+                  <div class="report-header-left">
+                    <span class="severity-pill" id="res-badge">GAGGAWA</span>
+                    <h3 class="report-headline" id="res-headline">Ana Bukatar Gaggauta Zuwa Asibiti</h3>
+                  </div>
+                  <button class="btn-audio-listen" onclick="playAudioGuidance()" id="btn-listen" title="Saurari Murya">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                    <span id="btn-listen-text">Saurara</span>
+                  </button>
+                </div>
+
+                <!-- Danger Signs Badges (If RED) -->
+                <div id="res-red-flags-box" class="findings-section hidden">
+                  <div class="section-label-row">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <span id="rf-heading">Alamun Hadari</span>
+                  </div>
+                  <div id="res-red-flags-list" class="flags-badge-grid"></div>
+                </div>
+
+                <!-- Clinical Summary -->
+                <div class="report-body-section">
+                  <div class="section-label" id="lbl-summary-title">Bayanin Likita</div>
+                  <p id="res-summary-text" class="report-summary-text"></p>
+                </div>
+
+                <!-- Clinical Steps & Actions -->
+                <div class="report-body-section">
+                  <div class="section-label" id="lbl-actions-title">Matakan Dauka</div>
+                  <div id="res-actions-list" class="actions-stepper"></div>
+
+                  <!-- Quick Next Step Shortcuts -->
+                  <div class="report-shortcuts-row">
+                    <button class="shortcut-btn" onclick="openReferralFromTriage()">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                      <span id="btn-find-phc-shortcut">Nemi PHC Mafi Kusa</span>
+                    </button>
+                    <button class="shortcut-btn" onclick="switchTab('mrdt')">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                      <span id="btn-scan-mrdt-shortcut">Gwajin mRDT ta Hoto</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Emergency Call Direct CTA (RED tier) -->
+                <div id="res-emergency-cta" class="emergency-action-block hidden">
+                  <a href="tel:112" class="emergency-call-btn" id="btn-call">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    <span id="btn-call-label">Kira Sufurin Gaggawa (112)</span>
+                  </a>
+                  <p class="first-aid-tip" id="res-first-aid-note">Kwantar da mara lafiyar a gefe (recovery position). Kada ka tura wani abu a bakinsa.</p>
+                </div>
+
+                <!-- Protocol Tag & Clinical Disclaimer -->
+                <div class="report-meta-footer">
+                  <div class="protocol-tag">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    <span>WHO IMCI &bull; NPHCDA Protocols</span>
+                  </div>
+                  <p class="disclaimer-text" id="res-disclaimer">Jagorar kiwon lafiya ta farko ce kawai; ba madadin ganin likita ba ne.</p>
+                </div>
+
+              </div>
+            </div>
+
+          </section>
+
+          <!-- VIEW 2: AUTO mRDT INTERPRETATION -->
+          <section id="view-mrdt" class="stage-view">
+            <div class="card-hero">
+              <div class="feature-view-header">
+                <div class="feature-icon-badge mrdt">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                </div>
+                <div>
+                  <h2 class="voice-title" id="mrdt-title">Fassarar Gwajin mRDT ta AI</h2>
+                  <span class="voice-subtitle" id="mrdt-sub">Dauki hoton gwajin malaria (mRDT) don AI ta tantance layi da sakamako</span>
+                </div>
+              </div>
+
+              <!-- Upload Dropzone -->
+              <div class="upload-dropzone" id="mrdt-dropzone" onclick="document.getElementById('mrdt-file-input').click()">
+                <input type="file" id="mrdt-file-input" accept="image/*" capture="environment" onchange="handleMRDTFile(event)" hidden>
+                <div id="mrdt-upload-prompt" class="upload-prompt-wrap">
+                  <div class="upload-icon-circle">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                  </div>
+                  <strong id="lbl-upload-cta">Dauki Hoto ko Zaɓi daga Na'ura</strong>
+                  <span id="lbl-upload-hint">Hoton yana bukatar ya nuna layin C da T a sarari</span>
+                </div>
+                <div id="mrdt-preview-wrap" class="preview-wrap hidden">
+                  <img id="mrdt-preview-img" alt="mRDT Strip Preview">
+                  <button class="btn-ghost-mini remove-img" type="button" onclick="clearMRDTUpload(event)">✕ Sauya Hoto</button>
+                </div>
+              </div>
+
+              <!-- Quick Demo Strips -->
+              <div class="demo-samples-row">
+                <span class="demo-label" id="lbl-demo-samples">Misalai don Gwaji:</span>
+                <button class="sample-chip red" onclick="loadSampleMRDT('positive')">
+                  <span class="chip-dot red"></span>
+                  <span>Malaria + (Positive)</span>
+                </button>
+                <button class="sample-chip green" onclick="loadSampleMRDT('negative')">
+                  <span class="chip-dot green"></span>
+                  <span>Malaria - (Negative)</span>
+                </button>
+                <button class="sample-chip amber" onclick="loadSampleMRDT('invalid')">
+                  <span class="chip-dot amber"></span>
+                  <span>Gwajin Bai Yi Ba (Invalid)</span>
+                </button>
+              </div>
+
+              <!-- Analyze Action Button -->
+              <div class="action-submit-row">
+                <button class="btn-primary full-width" id="btn-analyze-mrdt" onclick="submitMRDTAnalysis()">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                  <span id="btn-analyze-mrdt-label">Auna Hoton Gwaji Yanzu</span>
+                </button>
+              </div>
+
+              <!-- Loading State -->
+              <div id="mrdt-loading" class="loading-panel hidden">
+                <div class="pulsing-loader"></div>
+                <p id="mrdt-loading-label">Ana duba layukan gwajin mRDT ta Gemini Vision...</p>
+              </div>
+
+              <!-- mRDT Result Cockpit -->
+              <div id="mrdt-result-card" class="mrdt-result-card hidden">
+                <div class="mrdt-result-header" id="mrdt-badge-wrap">
+                  <span class="mrdt-status-pill" id="mrdt-status-badge">POSITIVE</span>
+                  <span class="mrdt-test-type" id="mrdt-test-type">Malaria Antigen Test</span>
+                </div>
+                
+                <div class="bands-visual-row" id="mrdt-bands-row">
+                  <div class="band-indicator" id="band-ctrl">
+                    <span class="band-letter">C</span>
+                    <span class="band-status-text" id="band-ctrl-text">Layin Kula (Control): Akwai ✓</span>
+                  </div>
+                  <div class="band-indicator" id="band-test">
+                    <span class="band-letter">T</span>
+                    <span class="band-status-text" id="band-test-text">Layin Gwaji (Test): Akwai ✓</span>
+                  </div>
+                </div>
+
+                <div class="mrdt-section">
+                  <div class="section-label" id="lbl-mrdt-meaning">Ma'anar Sakamako</div>
+                  <p class="mrdt-text" id="mrdt-interpretation"></p>
+                </div>
+
+                <div class="mrdt-section">
+                  <div class="section-label" id="lbl-mrdt-action">Matakin Da Za A Dauka</div>
+                  <p class="mrdt-text bold" id="mrdt-action"></p>
+                </div>
+
+                <div class="mrdt-safety-box">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                  <span id="mrdt-safety-note"></span>
+                </div>
+
+                <div class="mrdt-footer-actions">
+                  <button class="btn-primary" onclick="openReferralFromTriage()">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    <span id="btn-mrdt-goto-phc">Nemi PHC Mafi Kusa don Magani</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- VIEW 3: DHIS2 PHC REFERRAL ROUTING -->
+          <section id="view-referral" class="stage-view">
+            <div class="card-hero">
+              <div class="feature-view-header">
+                <div class="feature-icon-badge referral">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                </div>
+                <div>
+                  <h2 class="voice-title" id="referral-title">Nemi Cibiyar Kiwon Lafiya (PHC)</h2>
+                  <span class="voice-subtitle" id="referral-sub">Gano asibitoci da PHC mafi kusa ta hanyar tsarin DHIS2 na Najeriya</span>
+                </div>
+              </div>
+
+              <!-- Geolocation & Filter Controls -->
+              <div class="referral-search-bar">
+                <button class="btn-location-trigger" onclick="getUserLocationAndSearch()" id="btn-use-location">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><polygon points="12 8 16 16 12 14 8 16 12 8"></polygon></svg>
+                  <span id="lbl-use-location">Yi Amfani da Wuri na (GPS)</span>
+                </button>
+                <div class="state-select-wrap">
+                  <select id="referral-state-select" onchange="searchReferralByState()">
+                    <option value="">-- Dukkan Jihohi (All States) --</option>
+                    <option value="Kano" selected>Kano State</option>
+                    <option value="Kaduna">Kaduna State</option>
+                    <option value="Katsina">Katsina State</option>
+                    <option value="Sokoto">Sokoto State</option>
+                    <option value="Zamfara">Zamfara State</option>
+                    <option value="Jigawa">Jigawa State</option>
+                    <option value="Bauchi">Bauchi State</option>
+                    <option value="Gombe">Gombe State</option>
+                    <option value="Niger">Niger State</option>
+                    <option value="FCT">FCT Abuja</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Loading state -->
+              <div id="referral-loading" class="loading-panel hidden">
+                <div class="pulsing-loader"></div>
+                <p id="referral-loading-label">Ana bincika cibiyoyin PHC mafi kusa...</p>
+              </div>
+
+              <!-- Referral Results List -->
+              <div id="referral-results-list" class="referral-list-container">
+                <!-- Injected by JS -->
+              </div>
+
+            </div>
+          </section>
+
+          <!-- VIEW 4: IMMUNIZATION (Clean & Minimal) -->
+          <section id="view-imm" class="stage-view">
+            <div class="card-hero">
+              <div class="imm-header">
+                <div>
+                  <h2 class="voice-title" id="imm-section-title">Allurar Rigakafi ta NPHCDA</h2>
+                  <span class="voice-subtitle" id="imm-section-sub">Zabi shekarun jariri don ganin alluran da suka cancanta (Kyauta a PHC)</span>
+                </div>
+              </div>
+
+              <!-- Milestones Stepper -->
+              <div class="milestones-row">
+                <button class="milestone-pill active" onclick="loadVaccines(0)">Haihuwa</button>
+                <button class="milestone-pill" onclick="loadVaccines(6)">Makonni 6</button>
+                <button class="milestone-pill" onclick="loadVaccines(10)">Makonni 10</button>
+                <button class="milestone-pill" onclick="loadVaccines(14)">Makonni 14</button>
+                <button class="milestone-pill" onclick="loadVaccines(36)">Wata 9</button>
+                <button class="milestone-pill" onclick="loadVaccines(60)">Wata 15</button>
+              </div>
+
+              <!-- Vaccine Cards -->
+              <div id="vaccines-list" class="vaccines-grid">
+                <!-- Injected by JS -->
+              </div>
+
+              <!-- Minimal Safety Reassurance -->
+              <div class="compact-info-card">
+                <div class="compact-info-left">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                  <div class="compact-info-content">
+                    <strong id="faq-title">Shin allurar rigakafi na da hadari?</strong>
+                    <p id="faq-text">A'a, allurar rigakafi tana da aminci da inganci sosai. Dan zazzabi kadan alama ce mai kyau ta garkuwar jiki.</p>
+                  </div>
+                </div>
+                <button class="btn-ghost-mini" onclick="playMythAudio()" title="Saurara">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                  <span id="btn-faq-audio">Saurara</span>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Clean Global Footer in Workspace -->
+          <footer class="app-footer">
+            <p><strong>Shawarar Lafiya</strong> &bull; AI Decision Support grounded in WHO IMCI &amp; NPHCDA Protocols</p>
+          </footer>
+
+        </div>
+      </main>
+
+    </div>
+
+  </div>
+
+  <!-- Scenario Picker Dialog Modal -->
+  <div id="scenario-dialog-overlay" class="dialog-overlay hidden" onclick="closeScenarioDialog(event)">
+    <div class="dialog-box" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+
+      <div class="dialog-header">
+        <div class="dialog-title-wrap">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4"></path><path d="M12 16h4"></path><path d="M8 11h.01"></path><path d="M8 16h.01"></path></svg>
+          <span id="dialog-title" class="dialog-title-text">Zaɓi Yanayin Ciwo</span>
+        </div>
+        <button class="dialog-close-btn" onclick="closeScenarioDialog()" title="Close">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <p class="dialog-subtitle" id="dialog-subtitle">Zabi misalin yanayin ciwo don gwajin tsarin triage</p>
+
+      <ul class="scenario-list" id="scenario-list">
+        <!-- Injected by JS -->
+      </ul>
+
+      <div class="dialog-footer">
+        <span class="dialog-footer-note" id="dialog-footer-note">Zaɓin zai cika filin rubutu da gudanar da bincike nan take</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Clinical Notification Toast Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

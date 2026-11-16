@@ -1,0 +1,8 @@
+# Shawarar Lafiya — Development and Testing Dependencies
+-r requirements.txt
+pytest>=8.0.0
+pytest-anyio>=0.0.0
+anyio>=4.4.0
+soundfile>=0.12.1
+numpy>=1.26.0
+scipy>=1.13.0
