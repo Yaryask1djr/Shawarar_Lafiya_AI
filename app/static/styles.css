@@ -2239,6 +2239,51 @@ body {
     padding: 16px 12px 48px;
   }
 
+  .chatgpt-hero-wrap {
+    padding: 24px 6px 12px;
+  }
+
+  .hero-brand-mark {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 12px;
+  }
+
+  .hero-prompt-headline {
+    font-size: 1.42rem;
+  }
+
+  .hero-prompt-sub {
+    font-size: 0.86rem;
+    padding: 0 4px;
+  }
+
+  .omni-capsule {
+    border-radius: 22px;
+    padding: 10px 12px 8px;
+  }
+
+  .omni-capsule textarea {
+    font-size: 0.92rem;
+  }
+
+  .omni-attach-btn,
+  .omni-tool-btn,
+  .omni-voice-btn,
+  .omni-submit-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .hero-action-chips {
+    gap: 6px;
+  }
+
+  .hero-chip {
+    padding: 6px 11px;
+    font-size: 0.76rem;
+  }
+
   .card-hero {
     padding: 18px 14px 14px;
   }
@@ -2265,6 +2310,16 @@ body {
 
   .bands-visual-row {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 400px) {
+  .hero-prompt-headline {
+    font-size: 1.25rem;
+  }
+
+  .omni-tool-btn {
+    display: none;
   }
 }
 
