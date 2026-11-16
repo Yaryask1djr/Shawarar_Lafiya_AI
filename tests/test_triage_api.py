@@ -136,6 +136,24 @@ def test_mrdt_oversized_image_rejected():
     response = client.post("/api/v1/mrdt/interpret", files=files, data={"language": "ha"})
     assert response.status_code == 413
 
+def test_mrdt_unsupported_media_type_rejected():
+    files = {"image_file": ("script.sh", io.BytesIO(b"#!/bin/bash\necho test"), "text/x-shellscript")}
+    response = client.post("/api/v1/mrdt/interpret", files=files, data={"language": "ha"})
+    assert response.status_code == 415
+    assert "unsupported" in response.json()["detail"].lower()
+
+def test_mrdt_valid_image_fallback():
+    # Valid small JPEG payload
+    jpeg_bytes = b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00`\x00`\x00\x00\xff\xdb"
+    files = {"image_file": ("rdt_strip.jpg", io.BytesIO(jpeg_bytes), "image/jpeg")}
+    response = client.post("/api/v1/mrdt/interpret", files=files, data={"language": "ha"})
+    assert response.status_code == 200
+    data = response.json()
+    assert "result" in data
+    assert "confidence" in data
+    assert "interpretation_ha" in data
+
+
 def test_audio_empty_transcription_rejected():
     # File with content that produces empty transcription in mocked/short scenario
     files = {"audio_file": ("empty.wav", io.BytesIO(b"short"), "audio/wav")}

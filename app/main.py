@@ -243,13 +243,38 @@ async def interpret_mrdt_endpoint(
     """
     try:
         MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB limit
-        image_bytes = await image_file.read()
-        if not image_bytes or len(image_bytes) == 0:
-            raise HTTPException(status_code=400, detail="Uploaded image file is empty.")
-        if len(image_bytes) > MAX_IMAGE_SIZE_BYTES:
-            raise HTTPException(status_code=413, detail="Image file exceeds maximum permitted size of 10MB.")
+        ALLOWED_IMAGE_MIMES = {"image/jpeg", "image/png", "image/webp", "image/jpg"}
 
-        mime_type = image_file.content_type or "image/jpeg"
+        raw_mime = (image_file.content_type or "image/jpeg").lower()
+        if raw_mime not in ALLOWED_IMAGE_MIMES:
+            ext = os.path.splitext(image_file.filename or "")[1].lower()
+            if ext in {".jpg", ".jpeg"}:
+                mime_type = "image/jpeg"
+            elif ext == ".png":
+                mime_type = "image/png"
+            elif ext == ".webp":
+                mime_type = "image/webp"
+            else:
+                raise HTTPException(
+                    status_code=415,
+                    detail="Unsupported media type. Please upload a valid JPEG, PNG, or WebP image."
+                )
+        else:
+            mime_type = "image/jpeg" if raw_mime == "image/jpg" else raw_mime
+
+        total_size = 0
+        chunks = []
+        while chunk := await image_file.read(1024 * 64):  # 64KB streaming chunks
+            total_size += len(chunk)
+            if total_size > MAX_IMAGE_SIZE_BYTES:
+                raise HTTPException(status_code=413, detail="Image file exceeds maximum permitted size of 10MB.")
+            chunks.append(chunk)
+
+        if total_size == 0:
+            raise HTTPException(status_code=400, detail="Uploaded image file is empty.")
+
+        image_bytes = b"".join(chunks)
+
         result = await mrdt_service.interpret_image(
             image_bytes=image_bytes,
             mime_type=mime_type,
