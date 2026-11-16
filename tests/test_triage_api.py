@@ -155,11 +155,22 @@ def test_mrdt_valid_image_fallback():
 
 
 def test_audio_empty_transcription_rejected():
-    # File with content that produces empty transcription in mocked/short scenario
-    files = {"audio_file": ("empty.wav", io.BytesIO(b"short"), "audio/wav")}
-    response = client.post("/api/v1/triage/audio", files=files, data={"language": "ha"})
-    # Normal response or handled 400
-    assert response.status_code in [200, 400]
+    from unittest.mock import patch, AsyncMock
+    with patch("app.services.asr_service.asr_service.transcribe_audio_file", new_callable=AsyncMock) as mock_asr:
+        mock_asr.return_value = ("", "ha", 1.5)
+        files = {"audio_file": ("empty.wav", io.BytesIO(b"RIFFAudioData"), "audio/wav")}
+        response = client.post("/api/v1/triage/audio", files=files, data={"language": "ha"})
+        assert response.status_code == 400
+        assert "Muryar da aka ɗauka ba ta fita sarai ba" in response.json()["detail"]
+
+def test_audio_empty_transcription_rejected_english():
+    from unittest.mock import patch, AsyncMock
+    with patch("app.services.asr_service.asr_service.transcribe_audio_file", new_callable=AsyncMock) as mock_asr:
+        mock_asr.return_value = ("  ", "en", 1.5)
+        files = {"audio_file": ("empty.wav", io.BytesIO(b"RIFFAudioData"), "audio/wav")}
+        response = client.post("/api/v1/triage/audio", files=files, data={"language": "en"})
+        assert response.status_code == 400
+        assert "Audio transcription was empty" in response.json()["detail"]
 
 def test_audio_path_traversal_sanitized():
     # Attempt directory traversal in filename

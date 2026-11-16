@@ -165,9 +165,15 @@ async def triage_audio_endpoint(
         )
 
         if not transcription or len(transcription.strip()) < 2:
+            is_ha = language == "ha"
+            detail_msg = (
+                "Muryar da aka ɗauka ba ta fita sarai ba ko kuma ta yi gajarta sosai. Da fatan za a sake ɗaukar murya a fili."
+                if is_ha
+                else "Audio transcription was empty or too brief to evaluate. Please record a clearer voice message."
+            )
             raise HTTPException(
                 status_code=400,
-                detail="Audio transcription was empty or too brief to evaluate. Please record a clearer voice message."
+                detail=detail_msg
             )
 
         request = SymptomTriageRequest(
