@@ -420,8 +420,22 @@ function setupSpeechRecognition() {
     document.getElementById('symptom-text').value = e.results[0][0].transcript;
   };
 
-  STATE.recognition.onerror = () => {
+  STATE.recognition.onerror = (e) => {
     document.getElementById('voice-status-indicator').innerText = I18N[STATE.language].statusReady;
+    const isHa = STATE.language === 'ha';
+    if (e.error === 'not-allowed') {
+      showToast(
+        isHa ? "An Hana Izinin Lasifika" : "Microphone Access Denied",
+        isHa ? "Da fatan a ba da izinin amfani da lasifika a browser don yin magana da murya." : "Please allow microphone access in your browser to use voice input.",
+        'warning'
+      );
+    } else if (e.error === 'no-speech') {
+      showToast(
+        isHa ? "Babu Muryar Da Aka Ji" : "No Speech Detected",
+        isHa ? "Ba a ji muryarku ba. Sake danna gunkin murya sannan ku yi magana a fili." : "No speech was detected. Tap the mic icon again to speak clearly.",
+        'info'
+      );
+    }
   };
 
   STATE.recognition.onend = () => {
@@ -513,11 +527,84 @@ function clearInput() {
 }
 
 // ---------------------------------------------------------------------------
+// Clinical Toast & Notification System
+// ---------------------------------------------------------------------------
+function showToast(title, message, type = 'error', retryFn = null, duration = 6000) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+
+  const iconMap = {
+    error: `<svg class="toast-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--red)" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`,
+    warning: `<svg class="toast-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--amber)" stroke-width="2.2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`,
+    success: `<svg class="toast-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--green)" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`,
+    info: `<svg class="toast-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--brand)" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`
+  };
+
+  const isHa = STATE.language === 'ha';
+  const retryLabel = isHa ? "Sake Gwada" : "Retry";
+
+  toast.innerHTML = `
+    ${iconMap[type] || iconMap.info}
+    <div class="toast-body">
+      ${title ? `<strong class="toast-title">${title}</strong>` : ''}
+      <span class="toast-message">${message}</span>
+      ${retryFn ? `<button class="toast-retry-btn" type="button">${retryLabel}</button>` : ''}
+    </div>
+    <button class="toast-close" type="button" aria-label="Dismiss">&times;</button>
+  `;
+
+  if (retryFn) {
+    const btn = toast.querySelector('.toast-retry-btn');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        dismissToast(toast);
+        retryFn();
+      });
+    }
+  }
+
+  const closeBtn = toast.querySelector('.toast-close');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => dismissToast(toast));
+  }
+
+  container.appendChild(toast);
+
+  if (duration > 0) {
+    setTimeout(() => {
+      dismissToast(toast);
+    }, duration);
+  }
+}
+
+function dismissToast(toast) {
+  if (!toast || toast.classList.contains('dismissing')) return;
+  toast.classList.add('dismissing');
+  toast.style.opacity = '0';
+  toast.style.transform = 'translateY(15px)';
+  setTimeout(() => {
+    if (toast.parentNode) toast.parentNode.removeChild(toast);
+  }, 250);
+}
+
+// ---------------------------------------------------------------------------
 // Triage API
 // ---------------------------------------------------------------------------
 async function submitTriage() {
   const text = document.getElementById('symptom-text').value.trim();
-  if (!text) return;
+  const isHa = STATE.language === 'ha';
+
+  if (!text || text.length < 2) {
+    showToast(
+      isHa ? "Babu Alamomin da aka Shigar" : "No Symptoms Entered",
+      isHa ? "Da fatan a rubuta ko fadi abin da ke damun mara lafiya." : "Please type or speak the patient's symptoms before submitting.",
+      'warning'
+    );
+    return;
+  }
 
   const btn = document.getElementById('btn-submit');
   btn.disabled = true;
@@ -525,20 +612,42 @@ async function submitTriage() {
   document.getElementById('loading-state').classList.remove('hidden');
   document.getElementById('results-state').classList.add('hidden');
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 18000); // 18s timeout
+
   try {
     const res = await fetch('/api/v1/triage/text', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ symptoms_text: text, language: STATE.language })
+      body: JSON.stringify({ symptoms_text: text, language: STATE.language }),
+      signal: controller.signal
     });
-    if (!res.ok) throw new Error('API error');
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      let errDetail = "";
+      try {
+        const errJson = await res.json();
+        errDetail = errJson.detail || "";
+      } catch (e) {}
+
+      throw new Error(errDetail || (isHa ? "Kuskure daga sabar triage." : "Server error during triage."));
+    }
+
     const data = await res.json();
     STATE.currentResult = data;
     renderResult(data);
   } catch (err) {
-    alert(STATE.language === 'ha'
-      ? "An samu matsala wajen sadarwa da sabar."
-      : "Failed to connect to the triage server.");
+    clearTimeout(timeoutId);
+    const isTimeout = err.name === 'AbortError';
+    const title = isTimeout
+      ? (isHa ? "Lokacin Amsa Ya Ƙare" : "Network Request Timed Out")
+      : (isHa ? "Kuskuren Sadarwa" : "Connection Error");
+    const msg = isTimeout
+      ? (isHa ? "Sadarwar intanet ta yi jinkiri sosai. Danna 'Sake Gwada' don sake aikawa." : "Server took too long to respond. Check your connection or click Retry.")
+      : (err.message || (isHa ? "An samu matsala wajen sadarwa da sabar." : "Failed to connect to the triage server."));
+
+    showToast(title, msg, 'error', () => submitTriage());
   } finally {
     document.getElementById('loading-state').classList.add('hidden');
     btn.disabled = false;
@@ -689,6 +798,33 @@ let currentMRDTFile = null;
 function handleMRDTFile(e) {
   const file = e.target.files && e.target.files[0];
   if (!file) return;
+
+  const isHa = STATE.language === 'ha';
+
+  // Client-side file size check (10MB limit)
+  const MAX_MB = 10;
+  if (file.size > MAX_MB * 1024 * 1024) {
+    showToast(
+      isHa ? "Girman Hoto Ya Yi Yawa" : "File Too Large",
+      isHa ? `Hoton ya wuce iyakar girma (${MAX_MB}MB). Da fatan za a ɗauki ƙaramin hoto.` : `Image exceeds the ${MAX_MB}MB limit. Please upload a smaller photo.`,
+      'warning'
+    );
+    e.target.value = '';
+    return;
+  }
+
+  // File type check
+  const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg', 'image/svg+xml'];
+  if (file.type && !validTypes.includes(file.type.toLowerCase())) {
+    showToast(
+      isHa ? "Nau'in Fayil Bai Dace Ba" : "Unsupported File Type",
+      isHa ? "Da fatan a zaɓi hoton JPEG, PNG, ko WebP." : "Please select a valid JPEG, PNG, or WebP photo.",
+      'warning'
+    );
+    e.target.value = '';
+    return;
+  }
+
   currentMRDTFile = file;
 
   const reader = new FileReader();
@@ -748,8 +884,13 @@ async function loadSampleMRDT(type) {
 }
 
 async function submitMRDTAnalysis() {
+  const isHa = STATE.language === 'ha';
   if (!currentMRDTFile) {
-    alert(STATE.language === 'ha' ? "Da fatan a fara daukar hoto ko zabi daga waya." : "Please take a photo or select an image first.");
+    showToast(
+      isHa ? "Babu Hoton Gwaji" : "No Test Photo",
+      isHa ? "Da fatan a fara daukar hoto ko zabi daga waya." : "Please take a photo or select an image first.",
+      'warning'
+    );
     return;
   }
 
@@ -762,16 +903,40 @@ async function submitMRDTAnalysis() {
   formData.append('image_file', currentMRDTFile);
   formData.append('language', STATE.language);
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 22000); // 22s vision timeout
+
   try {
     const res = await fetch('/api/v1/mrdt/interpret', {
       method: 'POST',
-      body: formData
+      body: formData,
+      signal: controller.signal
     });
-    if (!res.ok) throw new Error('mRDT API error');
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      let errDetail = "";
+      try {
+        const errJson = await res.json();
+        errDetail = errJson.detail || "";
+      } catch (e) {}
+
+      throw new Error(errDetail || (isHa ? "Kuskure wajen duba hoton mRDT." : "Server error reading mRDT photo."));
+    }
+
     const data = await res.json();
     renderMRDTResult(data);
   } catch (err) {
-    alert(STATE.language === 'ha' ? "An samu matsala wajen fassara hoton mRDT." : "Failed to interpret mRDT image.");
+    clearTimeout(timeoutId);
+    const isTimeout = err.name === 'AbortError';
+    const title = isTimeout
+      ? (isHa ? "Lokacin Duba Hoto Ya Ƙare" : "Vision Analysis Timed Out")
+      : (isHa ? "Kuskuren Fassara mRDT" : "mRDT Analysis Error");
+    const msg = isTimeout
+      ? (isHa ? "Intanet ko Gemini Vision na da jinkiri. Sake gwadawa." : "Vision analysis timed out. Check your network or retry.")
+      : (err.message || (isHa ? "An samu matsala wajen fassara hoton mRDT." : "Failed to interpret mRDT image."));
+
+    showToast(title, msg, 'error', () => submitMRDTAnalysis());
   } finally {
     document.getElementById('mrdt-loading').classList.add('hidden');
     btn.disabled = false;
@@ -853,6 +1018,10 @@ async function fetchAndRenderReferral(lat, lon, stateFilter) {
   const container = document.getElementById('referral-results-list');
   container.innerHTML = '';
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s referral timeout
+  const isHa = STATE.language === 'ha';
+
   try {
     const res = await fetch('/api/v1/referral/nearest', {
       method: 'POST',
@@ -863,14 +1032,34 @@ async function fetchAndRenderReferral(lat, lon, stateFilter) {
         state_filter: stateFilter || null,
         language: STATE.language,
         max_results: 5
-      })
+      }),
+      signal: controller.signal
     });
+    clearTimeout(timeoutId);
+
     if (!res.ok) throw new Error('Referral API error');
     const data = await res.json();
     STATE.referralLoaded = true;
     renderReferralList(data);
   } catch (err) {
-    container.innerHTML = `<p style="color:var(--red); font-size:0.85rem; padding:12px 0;">Failed to load nearby health facilities.</p>`;
+    clearTimeout(timeoutId);
+    const isTimeout = err.name === 'AbortError';
+    const errText = isTimeout
+      ? (isHa ? "Lokacin neman cibiyar PHC ya wuce. Sake gwadawa." : "Health facility search timed out. Check network or retry.")
+      : (isHa ? "An samu matsala wajen samo cibiyoyin lafiya." : "Failed to load nearby health facilities.");
+
+    container.innerHTML = `
+      <div style="padding:16px; border:1px solid var(--border); border-radius:var(--r-md); background:var(--surface); text-align:center;">
+        <p style="color:var(--red); font-size:0.86rem; margin-bottom:8px;">${errText}</p>
+        <button onclick="fetchAndRenderReferral(${lat}, ${lon}, '${stateFilter || ''}')" class="toast-retry-btn" type="button">${isHa ? "Sake Gwada" : "Retry"}</button>
+      </div>`;
+
+    showToast(
+      isHa ? "Kuskuren Nemo PHC" : "Referral Routing Failed",
+      errText,
+      'error',
+      () => fetchAndRenderReferral(lat, lon, stateFilter)
+    );
   } finally {
     document.getElementById('referral-loading').classList.add('hidden');
   }

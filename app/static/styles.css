@@ -1920,3 +1920,121 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   CLINICAL TOAST & NOTIFICATION SYSTEM
+   ========================================================================== */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 420px;
+  width: calc(100vw - 32px);
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  animation: toast-slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  font-size: 0.86rem;
+  color: var(--text);
+}
+
+.toast.toast-error {
+  border-left: 4px solid var(--red);
+  background: var(--surface);
+}
+
+.toast.toast-warning {
+  border-left: 4px solid var(--amber);
+  background: var(--surface);
+}
+
+.toast.toast-success {
+  border-left: 4px solid var(--green);
+  background: var(--surface);
+}
+
+.toast.toast-info {
+  border-left: 4px solid var(--brand);
+  background: var(--surface);
+}
+
+.toast-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.toast-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toast-title {
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.toast-message {
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.toast-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--text-subtle);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.toast-close:hover {
+  color: var(--text);
+}
+
+.toast-retry-btn {
+  margin-top: 6px;
+  align-self: flex-start;
+  padding: 4px 10px;
+  background: var(--brand-subtle);
+  color: var(--brand);
+  border: 1px solid var(--brand-border);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.toast-retry-btn:hover {
+  background: var(--brand);
+  color: #fff;
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
