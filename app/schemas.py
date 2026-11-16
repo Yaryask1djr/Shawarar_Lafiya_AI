@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
+from app.config import settings
 
 class TriageTier(str, Enum):
     RED = "RED"       # Emergency / Gaggawa - Immediate referral to hospital/PHC
@@ -23,7 +24,7 @@ class PatientContext(BaseModel):
     user_location_lga: Optional[str] = Field(None, description="Local Government Area or State in Nigeria")
 
 class SymptomTriageRequest(BaseModel):
-    symptoms_text: str = Field(..., min_length=2, max_length=2000, description="Symptoms described in Hausa or English")
+    symptoms_text: str = Field(..., min_length=2, max_length=settings.MAX_SYMPTOM_DESCRIPTION_CHARS, description="Symptoms described in Hausa or English")
     language: str = Field(default="ha", description="'ha' for Hausa, 'en' for English")
     patient_context: Optional[PatientContext] = Field(default_factory=PatientContext)
     channel: str = Field(default="voicebot", description="Channel: 'ivr', 'whatsapp', 'web', 'chew_app'")

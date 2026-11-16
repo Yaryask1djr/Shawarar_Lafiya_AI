@@ -4,12 +4,14 @@ Primary Health & Symptom Triage Voicebot Backend.
 """
 
 import os
-import shutil
+import logging
 import uuid
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response, FileResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
 
 from app.config import settings
 from app.schemas import (
@@ -32,6 +34,30 @@ from app.services.mrdt_service import mrdt_service
 from app.services.referral_service import referral_service
 from app.webhooks.twilio_webhook import router as twilio_router
 
+logger = logging.getLogger("shawarar_lafiya")
+
+# ── Security Headers Middleware ───────────────────────────────────────────────
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Add defensive HTTP security headers to every response (SEC-10)."""
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "geolocation=(), camera=(), microphone=(self)"
+        # Only add CSP on HTML responses to avoid breaking API clients
+        if "text/html" in response.headers.get("content-type", ""):
+            response.headers["Content-Security-Policy"] = (
+                "default-src 'self'; "
+                "script-src 'self' 'unsafe-inline'; "
+                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+                "font-src 'self' https://fonts.gstatic.com; "
+                "img-src 'self' data:; "
+                "connect-src 'self';"
+            )
+        return response
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
@@ -51,6 +77,23 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(SecurityHeadersMiddleware)
+
+# ── Startup safety warnings ───────────────────────────────────────────────────
+@app.on_event("startup")
+async def startup_warnings():
+    """Emit loud warnings for dangerous production misconfigurations (SEC-03, SEC-07)."""
+    if settings.ENV == "production":
+        if "*" in cors_origins:
+            logger.warning(
+                "[SECURITY SEC-03] CORS_ORIGINS is set to wildcard '*' in production! "
+                "Set CORS_ORIGINS env var to explicit allowed origins."
+            )
+        if settings.DEBUG:
+            logger.warning(
+                "[SECURITY SEC-07] DEBUG=True in production! "
+                "Set DEBUG=false to prevent stack-trace exposure in HTTP 500 responses."
+            )
 
 os.makedirs(settings.AUDIO_UPLOAD_DIR, exist_ok=True)
 
