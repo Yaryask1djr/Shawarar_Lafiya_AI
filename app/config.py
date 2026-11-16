@@ -31,8 +31,10 @@ class Settings(BaseModel):
     SUPPORTED_LANGUAGES: list[str] = ["ha", "en"]
 
     # ── Referral & DHIS2 ──────────────────────────────────────────────────────
+    DHIS2_BASE_URL: str = os.getenv("DHIS2_BASE_URL", "https://dhis2.nigeria.gov.ng/api")
     DHIS2_USERNAME: str = os.getenv("DHIS2_USERNAME", "")
     DHIS2_PASSWORD: str = os.getenv("DHIS2_PASSWORD", "")
+    DHIS2_TIMEOUT_SECONDS: float = float(os.getenv("DHIS2_TIMEOUT_SECONDS", "6.0"))
 
     # ── Clinical Safety ───────────────────────────────────────────────────────
     MAX_SYMPTOM_DESCRIPTION_CHARS: int = 1500

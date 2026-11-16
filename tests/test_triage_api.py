@@ -209,4 +209,29 @@ def test_audio_oversized_file_rejected():
     response = client.post("/api/v1/triage/audio", files=files, data={"language": "ha"})
     assert response.status_code == 413
 
+def test_referral_nearest_offline_fallback():
+    payload = {
+        "lat": 12.0022,
+        "lon": 8.5920,
+        "state_filter": "Kano",
+        "language": "ha",
+        "max_results": 3
+    }
+    response = client.post("/api/v1/referral/nearest", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["facilities_found"] > 0
+    assert len(data["facilities"]) <= 3
+    assert data["source"] in ["offline_curated", "dhis2_live"]
+    assert "distance_km" in data["facilities"][0]
+
+def test_dhis2_config_schema():
+    from app.config import settings
+    assert hasattr(settings, "DHIS2_BASE_URL")
+    assert hasattr(settings, "DHIS2_USERNAME")
+    assert hasattr(settings, "DHIS2_PASSWORD")
+    assert hasattr(settings, "DHIS2_TIMEOUT_SECONDS")
+    assert settings.DHIS2_TIMEOUT_SECONDS > 0
+
+
 

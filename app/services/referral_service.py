@@ -87,13 +87,13 @@ class ReferralService:
     Attempts live DHIS2 Nigeria API first; falls back to offline dataset.
     """
 
-    DHIS2_BASE = "https://dhis2.nigeria.gov.ng/api"
-    DHIS2_TIMEOUT = 6.0
     MAX_RESULTS = 5
 
     def __init__(self):
-        self._dhis2_username = getattr(settings, "DHIS2_USERNAME", "")
-        self._dhis2_password = getattr(settings, "DHIS2_PASSWORD", "")
+        self._dhis2_base = settings.DHIS2_BASE_URL
+        self._dhis2_username = settings.DHIS2_USERNAME
+        self._dhis2_password = settings.DHIS2_PASSWORD
+        self._dhis2_timeout = settings.DHIS2_TIMEOUT_SECONDS
 
     @property
     def dhis2_configured(self) -> bool:
@@ -161,10 +161,10 @@ class ReferralService:
 
             async with httpx.AsyncClient(
                 auth=(self._dhis2_username, self._dhis2_password),
-                timeout=self.DHIS2_TIMEOUT,
+                timeout=self._dhis2_timeout,
             ) as client:
                 r = await client.get(
-                    f"{self.DHIS2_BASE}/organisationUnits.json", params=params
+                    f"{self._dhis2_base}/organisationUnits.json", params=params
                 )
                 r.raise_for_status()
                 units = r.json().get("organisationUnits", [])
